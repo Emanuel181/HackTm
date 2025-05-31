@@ -43,3 +43,27 @@ class DownvoteSesizare(Resource):
             abort(404, f"Sesizare with id == {sesizare_id} not found.")
 
         return {'message': f"Sesizare with id == {sesizare_id} downvoted successfully."}, 200
+
+
+@api.route('/send_comment/<string:sesizare_id>')
+class AddComment(Resource):
+    def post(self, sesizare_id):
+        data = request.get_json()
+        comment = data.get('comment')
+
+        if not comment:
+            abort(400, "Missing 'comment' in request body.")
+
+        query = db.collection('sesizari').where('id', '==', sesizare_id).stream()
+
+        updated = False
+        for doc in query:
+            doc.reference.update({
+                'comments': firestore.ArrayUnion([comment])
+            })
+            updated = True
+
+        if not updated:
+            abort(404, f"Sesizare with id == {sesizare_id} not found.")
+
+        return {'message': f"Comment added to sesizare with id == {sesizare_id}."}, 200
