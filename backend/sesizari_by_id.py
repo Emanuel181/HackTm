@@ -23,3 +23,22 @@ class GetSesizariById(Resource):
             return doc.to_dict()
         else:
             abort(404, f"Sesizare with ID {doc_id} not found.")
+            
+@api.route('/update_status/solutionat/<string:doc_id>')
+class UpdateStatusByFieldId(Resource):
+    def put(self, doc_id):
+        # Query the collection by field 'id'
+        matching_docs = db.collection('sesizari').where('id', '==', doc_id).stream()
+        updated = False
+
+        for doc in matching_docs:
+            doc.reference.update({
+                'status': 'solutionat',
+                'updated_at': datetime.utcnow().isoformat()
+            })
+            updated = True
+
+        if not updated:
+            abort(404, f"No sesizare found with field 'id' == {doc_id}")
+
+        return {'message': f"Sesizare with id field '{doc_id}' marked as solutionat."}, 200
