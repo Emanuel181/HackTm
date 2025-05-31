@@ -1,5 +1,26 @@
+import os
+import json
 from flask import Flask
-from flask_restx import Api, Resource, fields
+from flask_restx import Api
+from dotenv import load_dotenv
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# Load environment variables from .env
+load_dotenv()
+
+# Parse the service account JSON from the env variable
+firebase_creds_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
+cred_dict = json.loads(firebase_creds_json)
+
+# Initialize Firebase Admin SDK
+cred = credentials.Certificate(cred_dict)
+firebase_admin.initialize_app(cred)
+
+# Make Firestore available globally (can be imported elsewhere)
+db = firestore.client()
+
+# Initialize Flask app and API
 from sesizari_routes import api as sesizari_ns
 
 app = Flask(__name__)
