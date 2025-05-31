@@ -1,0 +1,17 @@
+.cards-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+mat-card {
+    width: 80%;
+}
+
+@media (max-width: 600px) {
+    mat-card {
+        width: 90%;
+    }
+  }
