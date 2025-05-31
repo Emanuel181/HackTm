@@ -3,6 +3,7 @@ from flask import request, abort
 from firebase_client import db  # Firestore client
 from datetime import datetime
 import uuid
+from helpers import get_neighborhood_for_point
 
 api = Namespace('sesizari', description='Operations related to sesizari')
 
@@ -25,7 +26,8 @@ sesizare_model = api.model('Sesizare', {
     'created_at': fields.String(required=False, description='Timestamp of creation'),
     'upvotes': fields.Integer(required=False, description='Number of upvotes', default=0),
     'downvotes': fields.Integer(required=False, description='Number of downvotes', default=0),
-    'comments': fields.List(fields.String, required=False, description='List of admin comments')
+    'comments': fields.List(fields.String, required=False, description='List of admin comments'),
+    'cartier': fields.String(required=False, description='Zone in the city')
 })
 
 @api.route('/get_sesizari/all')
@@ -51,6 +53,8 @@ class CreateSesizare(Resource):
         data['id'] = sesizare_id
         data['status'] = 'active'
         data['created_at'] = datetime.utcnow().isoformat()
+
+        data["cartier"] = get_neighborhood_for_point(data["locatie"]["lat"], data["locatie"]["lng"])
 
         # Save to Firestore
         new_doc_ref = db.collection('sesizari').document()

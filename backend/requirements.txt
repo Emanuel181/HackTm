@@ -3,3 +3,4 @@ flask-restx
 python-dotenv
 firebase-admin
 flask-cors
+shapely

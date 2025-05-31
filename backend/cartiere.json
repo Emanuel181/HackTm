@@ -1,5 +1,6 @@
 [{
-  "Iosefin": {
+    "name":"Iosefin",
+    "geometry": {
     "type": "MultiPolygon",
     "coordinates": [
       [
@@ -45,7 +46,8 @@
   }
 },
 {
-  "Dâmbovița": {
+  "name":"Dâmbovița",
+  "geometry": {
     "type": "Polygon",
     "coordinates": [
       [
@@ -71,7 +73,8 @@
   }
 },
 {
-  "Circumvalațiunii + Dacia": {
+  "name":"Circumvalațiunii + Dacia",
+  "geometry": {
     "type": "MultiPolygon",
     "coordinates": [
       [
@@ -109,7 +112,8 @@
   }
 },
 {
-  "Blașcovici": {
+  "name":"Blașcovici",
+  "geometry": {
     "type": "Polygon",
     "coordinates": [
       [
@@ -145,7 +149,8 @@
   }
 },
 {
-  "Mehala": {
+  "name": "Mehala",
+  "geometry": {
     "type": "Polygon",
     "coordinates": [
       [
@@ -184,7 +189,8 @@
   }
 },
 {
-  "Ronaț": {
+  "name" :"Ronaț",
+  "geometry": {
     "type": "Polygon",
     "coordinates": [
       [
@@ -220,7 +226,8 @@
   }
 },
 {
-  "Aradului": {
+  "name": "Aradului",
+  "geometry": {
     "type": "Polygon",
     "coordinates": [
       [
@@ -251,7 +258,8 @@
   }
 },
 {
-  "Torontalului": {
+  "name": "Torontalului",
+  "geometry": {
     "type": "Polygon",
     "coordinates": [
       [
@@ -281,7 +289,8 @@
   }
 },
 {
-  "Lipovei": {
+  "name": "Lipovei",
+  "geometry": {
     "type": "Polygon",
     "coordinates": [
       [
@@ -312,7 +321,8 @@
   }
 },
 {
-  "Tipografilor": {
+  "name": "Tipografilor",
+  "geometry": {
     "type": "Polygon",
     "coordinates": [
       [
@@ -356,7 +366,8 @@
   }
 },
 {
-  "Telegrafului": {
+  "name": "Telegrafului",
+  "geometry": {
     "type": "Polygon",
     "coordinates": [
       [
@@ -384,7 +395,8 @@
   }
 },
 {
-  "Bastion": {
+  "name": "Bastion",
+  "geometry": {
     "type": "Polygon",
     "coordinates": [
       [
@@ -414,7 +426,8 @@
   }
 },
 {
-  "Elisabetin": {
+  "name":"Elisabetin",
+  "geometry": {
     "type": "Polygon",
     "coordinates": [
       [
