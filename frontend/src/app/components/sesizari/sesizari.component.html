@@ -1,7 +1,7 @@
 <!-- src/app/sesizari/sesizari.component.html -->
 
 <div class="cards-container">
-  <mat-card *ngFor="let item of data" class="sesizare-card">
+  <mat-card *ngFor="let item of (role === 'admin' ? allData : userData)" class="sesizare-card">
     <div class="card-content">
       <!-- LEFT COLUMN: Image (or placeholder) -->
       <div class="card-image-container">

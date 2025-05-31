@@ -1,16 +1,16 @@
 <div class="login-container">
   <img class="logo" src="logo.svg" alt="logo" />
   <form class="login-form" (ngSubmit)="login()">
-    <h2 class="login-title">Sign in to your account</h2>
+    <h2 class="login-title">Autentificare</h2>
 
     <div class="form-field">
-      <label for="email">User</label>
+      <label for="email">Utilizator</label>
       <input
         id="email"
         type="email"
         [(ngModel)]="email"
         name="email"
-        placeholder="your username"
+        placeholder="nume"
         required
       />
     </div>
@@ -19,7 +19,7 @@
       {{ error }}
     </div>
 
-    <button class="login-button" type="submit">Login</button>
+    <button class="login-button" type="submit">Intră în cont</button>
   </form>
 </div>
 

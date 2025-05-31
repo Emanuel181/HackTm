@@ -2,11 +2,11 @@
   <div class="nav-container">
     <img class="logo" src="logo.svg" alt="logo" routerLink="/home" />
     <div class="nav-buttons">
-      <button mat-button routerLink="/home">Home</button>
-      <button mat-button routerLink="/sesizari">Sesizări</button>
-      +     <button mat-button routerLink="/map-heat3d">Zone Vizuale</button>
-      <!-- <button mat-button routerLink="/heat-map">Heat Map</button> -->
-      <button mat-flat-button routerLink="/auth">Autentificare</button>
+      <button mat-button routerLink="/home">Acasă</button>
+      <button *ngIf="isLoggedIn" mat-button routerLink="/sesizari">Sesizări</button>
+      <button mat-button routerLink="/map-heat3d">Zone Vizuale</button>
+      <button *ngIf="!isLoggedIn" mat-flat-button routerLink="/auth">Autentificare</button>
+      <button *ngIf="isLoggedIn" mat-flat-button (click)="logout()">Delogare</button>
     </div>
   </div>
 </mat-toolbar>
