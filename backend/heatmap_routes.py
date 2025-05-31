@@ -4,7 +4,7 @@ from firebase_client import db  # Firestore client
 from datetime import datetime
 import uuid
 
-from helpers import get_all_heatmap_problems, get_all_heatmap_security
+from helpers import get_all_heatmap_problems, get_all_heatmap_security, get_all_heatmap_investment
 
 api = Namespace('heatmap', description='Operations related to the heatmaps')
 
@@ -19,3 +19,9 @@ class GetSecurityS(Resource):
     def get(self):
         security_scores = get_all_heatmap_security()
         return security_scores
+
+@api.route('/heatmap/get_investment_scores')
+class GetInvestment(Resource):
+    def get(self):
+        investment_scores = get_all_heatmap_investment()
+        return investment_scores

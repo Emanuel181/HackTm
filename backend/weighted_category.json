@@ -1,0 +1,20 @@
+{
+  "Strazi si trotoare": 1.0,
+  "Iluminat public": 0.95,
+  "Mediu, locuri de joaca si spatii verzi": 0.9,
+  "Salubrizare, dezinsectie, deratizare si dezapezire": 0.9,
+  "Constructii si terenuri": 0.85,
+  "Urbanism": 0.85,
+  "Trafic rutier si semne de circulatie": 0.8,
+  "Santiere": 0.75,
+  "Apa si canalizare": 0.75,
+  "Transport in comun": 0.7,
+  "Piete agroalimentare": 0.65,
+  "Ordine publica": 0.6,
+  "Animale": 0.55,
+  "Organizare si functionare asociații de proprietari": 0.5,
+  "Probleme de integritate": 0.4,
+  "Probleme de integritate referitoare la angajati": 0.4,
+  "Garaje, coserit, cimitire si toalete publice": 0.4,
+  "Website si platforma sesizari": 0.3
+}

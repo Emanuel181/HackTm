@@ -136,3 +136,64 @@ def get_all_heatmap_security(json_path="./weighted_subcategories.json"):
     }
 
     return normalized_scores
+
+def get_all_heatmap_investment(
+    category_weights_path="./weighted_category.json",
+    cartier_weights_path="./weighted_cartiere.json"
+):
+    # Load category weights
+    with open(category_weights_path, "r", encoding="utf-8") as f:
+        category_weights = json.load(f)
+
+    # Load zone (cartier) weights
+    with open(cartier_weights_path, "r", encoding="utf-8") as f:
+        cartier_weights = json.load(f)
+
+    # Fetch all sesizari
+    docs = db.collection("sesizari").stream()
+    all_sesizari = [doc.to_dict() for doc in docs]
+
+    # Aggregation structures
+    zone_weighted_scores = defaultdict(float)
+    zone_post_counts = defaultdict(int)
+    zone_vote_counts = defaultdict(int)
+
+    for s in all_sesizari:
+        cartier = s.get("cartier")
+        category = s.get("categorie")  # assuming this field is available
+        status = s.get("status", "").lower()
+        upvotes = s.get("upvotes", 0)
+        downvotes = s.get("downvotes", 0)
+
+        if not cartier or not category:
+            continue
+
+        category_weight = category_weights.get(category)
+        cartier_weight = cartier_weights.get(cartier)
+
+        if category_weight is None or cartier_weight is None:
+            continue  # skip unknown categories/zones
+
+        weight = 0 if status == "solutionat" else category_weight * cartier_weight
+        score = (upvotes - downvotes) * weight
+
+        zone_weighted_scores[cartier] += score
+        zone_post_counts[cartier] += 1
+        zone_vote_counts[cartier] += upvotes + downvotes
+
+    # Final investment score per zone
+    all_final_scores = {}
+    for zone in zone_weighted_scores:
+        posts = zone_post_counts[zone]
+        votes = zone_vote_counts[zone]
+        confidence = max(posts, votes)
+
+        if posts == 0:
+            continue
+
+        average_score = zone_weighted_scores[zone] / posts
+        all_final_scores[zone] = round(average_score * confidence, 2)
+
+        sorted_scores = dict(sorted(all_final_scores.items(), key=lambda item: item[1], reverse=True))
+
+    return sorted_scores
