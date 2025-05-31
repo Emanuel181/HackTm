@@ -194,36 +194,29 @@ export class CreationDialogComponent implements OnInit {
   }
 
   private submitJson(body: any) {
-    this.isCreating = true;
-    this.http
-      .post<{ success: boolean; message?: string }>(
-        `${environment.baseApiUrl}create_sesizare`,
-        body,
-        { headers: { 'Content-Type': 'application/json' } }
-      )
-      .pipe(finalize(() => (this.isCreating = false)))
-      .subscribe({
-        next: (res) => {
-          if (res.success) {
-            this.dialogRef.close({ created: true, data: res });
-          } else {
-            this.snackBar.open(
-              res.message || 'A apărut o eroare la crearea sesizării.',
-              'OK',
-              { duration: 5000 }
-            );
-          }
-        },
-        error: (err) => {
-          console.error('Error creating sesizare:', err);
-          this.snackBar.open(
-            'Eroare la comunicarea cu serverul. Încearcă din nou mai târziu.',
-            'OK',
-            { duration: 5000 }
-          );
-        }
-      });
-  }
+  this.isCreating = true;
+  this.http
+    .post<{ message: string; id: string }>(
+      `${environment.baseApiUrl}create_sesizare`,
+      body,
+      { headers: { 'Content-Type': 'application/json' } }
+    )
+    .pipe(finalize(() => (this.isCreating = false)))
+    .subscribe({
+      next: (res) => {
+        this.dialogRef.close(res);
+      },
+      error: (err) => {
+        console.error('Error creating sesizare:', err);
+        this.snackBar.open(
+          'Eroare la comunicarea cu serverul. Încearcă din nou mai târziu.',
+          'OK',
+          { duration: 5000 }
+        );
+      }
+    });
+}
+
 
   onClose() {
     this.dialogRef.close();

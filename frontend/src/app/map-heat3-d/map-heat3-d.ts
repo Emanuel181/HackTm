@@ -239,7 +239,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
               item: item
             }
           }).afterClosed().subscribe((result) => {
-            if (result?.created) {
+            if (result?.message === 'Sesizare created') {
               window.location.reload();
             }
           });
