@@ -4,7 +4,7 @@ import { NavbarComponent } from '../../shared/navbar/navbar.component';
 
 @Component({
   selector: 'app-sesizarile-mele',
-  imports: [RouterModule, NavbarComponent],
+  imports: [RouterModule],
   templateUrl: './sesizarile-mele.component.html',
   styleUrl: './sesizarile-mele.component.scss'
 })

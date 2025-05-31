@@ -1,15 +1,21 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { MatToolbar } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
+// src/app/shared/navbar/navbar.component.ts
+import { CommonModule }   from '@angular/common';
+import { Component }      from '@angular/core';
+import { RouterModule }   from '@angular/router';
+
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule }  from '@angular/material/button';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterModule, CommonModule, MatToolbar, MatButtonModule],
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatToolbarModule,
+    MatButtonModule
+  ],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss'
+  styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent {
-
-}
+export class NavbarComponent { }
