@@ -27,6 +27,7 @@ from sesizari_routes import api as sesizari_ns
 from sesizari_by_id import api as sesizari_id_ns
 from sesizari_by_filter import api as sesizari_filter_ns
 from sesizari_post import api as sesizari_post_ns
+from helper_routes import api as helper_routes_ns
 
 # ✅ Initialize Flask app
 app = Flask(__name__)
@@ -42,6 +43,7 @@ api.add_namespace(sesizari_ns, path='/api')
 api.add_namespace(sesizari_id_ns, path='/api')
 api.add_namespace(sesizari_filter_ns, path='/api')
 api.add_namespace(sesizari_post_ns, path='/api')
+api.add_namespace(helper_routes_ns, path='/api')
 
 # ✅ Run the app
 if __name__ == '__main__':
