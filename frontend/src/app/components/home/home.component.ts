@@ -29,7 +29,7 @@ export class HomeComponent {
   ngAfterViewInit(): void {
     // 2) Once the view (and thus the map) is initialized, fetch the data
     this.http
-      .get<any[]>('https://hacktm.onrender.com/api/get_sesizari/all')
+      .get<any[]>(environment.baseApiUrl + 'get_sesizari/all')
       .subscribe((response) => {
         this.data = response;
 
