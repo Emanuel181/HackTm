@@ -1,0 +1,12 @@
+/* src/app/app.component.scss */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 16px;
+}
