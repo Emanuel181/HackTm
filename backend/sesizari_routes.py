@@ -2,6 +2,7 @@ from flask_restx import Namespace, Resource, fields
 from flask import request, abort
 from firebase_client import db  # Firestore client
 from datetime import datetime
+import uuid
 
 api = Namespace('sesizari', description='Operations related to sesizari')
 
@@ -20,7 +21,8 @@ sesizare_model = api.model('Sesizare', {
     'locatie': fields.Nested(location_model),
     'url_poza': fields.String(required=False, description='URL to photo proof'),
     'status': fields.String(required=False, description='Status (e.g. active, resolved)'),
-    'created_at': fields.String(required=False, description='Timestamp of creation')
+    'created_at': fields.String(required=False, description='Timestamp of creation'),
+    'id': fields.String(required=False, description='ID of the doc')
 })
 
 @api.route('/get_sesizari/all')
@@ -42,7 +44,9 @@ class CreateSesizare(Resource):
                 abort(400, f"Missing required field: {field}")
 
         # Add default values
-        data['status'] = data.get('status', 'active')
+        sesizare_id = str(uuid.uuid4())
+        data['id'] = sesizare_id
+        data['status'] = 'active'
         data['created_at'] = datetime.utcnow().isoformat()
 
         # Save to Firestore
