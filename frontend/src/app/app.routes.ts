@@ -4,6 +4,7 @@ import { SesizariComponent } from './components/sesizari/sesizari.component';
 import { ZoneVizualeComponent } from './components/zone-vizuale/zone-vizuale.component';
 import { HomeComponent } from './components/home/home.component';
 import { MapHeat3DComponent } from './map-heat3-d/map-heat3-d';
+import {AuthComponent} from './components/auth/auth.component';
 
 export const routes: Routes = [
   {
@@ -30,6 +31,10 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'home'
+  },
+  {
+    path: 'auth',
+    component: AuthComponent
   }
 ];
 

@@ -18,12 +18,13 @@ class GetSesizariByUser(Resource):
 class GetSesizariById(Resource):
     @api.marshal_with(sesizare_model)
     def get(self, doc_id):
-        doc = db.collection('sesizari').document(doc_id).get()
-        if doc.exists:
-            return doc.to_dict()
-        else:
-            abort(404, f"Sesizare with ID {doc_id} not found.")
-            
+        docs = db.collection('sesizari').where('id', '==', doc_id).stream()
+        for doc in docs:
+            return { 'id': doc.id, **doc.to_dict() }  # include Firestore doc ID for frontend use
+
+        abort(404, f"Sesizare with field 'id' == {doc_id} not found.")
+
+
 @api.route('/update_status/solutionat/<string:doc_id>')
 class UpdateStatusByFieldId(Resource):
     def put(self, doc_id):
