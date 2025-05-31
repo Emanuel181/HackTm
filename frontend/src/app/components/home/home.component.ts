@@ -32,15 +32,6 @@ export class HomeComponent {
       .get<any[]>(environment.baseApiUrl + 'get_sesizari/all')
       .subscribe((response) => {
         this.data = response;
-
-        // 3) Iterate over each item and pass its longitude & latitude to the map
-        //    (Assuming each object is like { locatie: { lat: number, lng: number }, ... })
-        for (const item of this.data) {
-          const lat = item.locatie.lat;
-          const lon = item.locatie.lng;
-          // call the public method on the map to add a red dot
-          this.openLayersMap.addComplaints(this.data);
-        }
       });
   }
 }

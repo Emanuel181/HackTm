@@ -16,14 +16,40 @@ import {
   GeoJsonProperties
 } from 'geojson';
 import { ActivatedRoute } from '@angular/router';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+
 
 // ← Import your full neighborhoods GeoJSON (same one used by OpenLayers)
 import { neighborhoodsGeoJson } from '../data/neighbours';
+import { environment } from '../../environments/environments';
+import { catchError, throwError } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { CreationDialogComponent } from '../shared/creation-dialog/creation-dialog.component';
 
 interface ZoneProperties {
   name: string;
   intensity?: number;
   description?: string;
+}
+
+interface Sesizare {
+  id: string;
+  titlu: string;
+  descriere: string;
+  categorie: string;
+  user_id: string;
+  locatie: {
+    lat: number;
+    lng: number;
+  };
+  url_poza: string;
+  status: string;
+  created_at: string;
+  upvotes: number;
+  downvotes: number;
+  comments: string[];
+  cartier: string;
+  interactions: any;  // adjust if you know its precise shape
 }
 
 @Component({
@@ -42,7 +68,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
   // ───> Keep track of which lightPreset is active. Default to "day".
   public currentPreset: 'day' | 'dusk' | 'dawn' | 'night' = 'dawn';
 
-  constructor(private activatedRoute: ActivatedRoute) {}
+  constructor(private activatedRoute: ActivatedRoute, private http: HttpClient, private matDialog: MatDialog) {}
 
   ngAfterViewInit(): void {
     // 1) Read “regionName” from the URL query parameters
@@ -152,8 +178,67 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       } else {
         this.showAllRegions();
       }
+        console.log('Map loaded with regions:', filteredGeoJson.features.length);
+        new mapboxgl.Marker({
+        color: '#0000FF',     // pure blue
+        draggable: false      // set to true if you want user to drag it
+      })
+        .setLngLat([21.23771, 45.75616])
+        .addTo(this.map);
+   if (this.regionName) {
+        this.fetchAndDrawRedMarkers(this.regionName);
+      }
     });
   }
+
+  /**
+   * Fetch all “sesizări” for the given cartier (regionName) and place a red marker at each returned [lng, lat].
+   */
+  private fetchAndDrawRedMarkers(regionName: string): void {
+  const url = `${environment.baseApiUrl}get_sesizari/cartier/${encodeURIComponent(regionName)}`;
+
+  this.http
+    .get<Sesizare[]>(url)
+    .pipe(
+      catchError((err: HttpErrorResponse) => {
+        console.error('Error fetching sesizări:', err.message);
+        return throwError(err);
+      })
+    )
+    .subscribe((sesizari: Sesizare[]) => {
+      if (!Array.isArray(sesizari) || sesizari.length === 0) {
+        console.log(`No sesizări returned for "${regionName}".`);
+        return;
+      }
+
+      sesizari.forEach((item: Sesizare) => {
+        // Because JSON “lat” is actually longitude, and “lng” is latitude:
+        const lon = item.locatie.lat;
+        const lat = item.locatie.lng;
+
+        // 1) Create the marker and add it to the map
+        const marker = new mapboxgl.Marker({
+          color: '#FF0000',
+          draggable: false
+        })
+          .setLngLat([lon, lat])
+          .addTo(this.map);
+
+        // 2) Grab the underlying HTMLElement and wire up a click handler
+        const markerElement = marker.getElement();
+        markerElement.style.cursor = 'pointer';
+
+        markerElement.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.matDialog.open(CreationDialogComponent, {
+            width: '650px',
+            data: item
+          });
+        });
+      });
+    });
+}
+
 
   /**
    * Called from the <select> when the user picks a new lightPreset.
