@@ -1,2 +1,9 @@
 <div #mapContainer id="map" style="width: 100%; height: 100vh;"></div>
 
+<!-- Light Preset Switcher -->
+<div id="light-switcher" class="light-switcher">
+  <button (click)="onLightPresetClick('day')" [class.active]="currentPreset === 'day'">☀️</button>
+  <button (click)="onLightPresetClick('dawn')" [class.active]="currentPreset === 'dawn'">🌄</button>
+  <button (click)="onLightPresetClick('dusk')" [class.active]="currentPreset === 'dusk'">🌆</button>
+  <button (click)="onLightPresetClick('night')" [class.active]="currentPreset === 'night'">🌙</button>
+</div>

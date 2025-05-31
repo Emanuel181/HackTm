@@ -24,10 +24,10 @@ export const routes: Routes = [
     path: 'zone-vizuale',
     component: ZoneVizualeComponent
   },
-//   {
-//     path: 'heat-map',
-//     component: MapHeat3DComponent
-//   },
+  {
+    path: 'heat-map',
+    component: MapHeat3DComponent
+  },
   {
     path: '**',
     redirectTo: 'home'

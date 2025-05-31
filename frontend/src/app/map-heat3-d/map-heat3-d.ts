@@ -1,3 +1,5 @@
+// src/app/map-heat3-d/map-heat3-d.component.ts
+
 import {
   Component,
   AfterViewInit,
@@ -5,63 +7,27 @@ import {
   ElementRef,
   ViewChild
 } from '@angular/core';
+
 import mapboxgl from 'mapbox-gl';
-import { FeatureCollection, Polygon } from 'geojson';
-import { RouterModule, RouterOutlet } from '@angular/router';
+import {
+  FeatureCollection,
+  Polygon,
+  MultiPolygon,
+  GeoJsonProperties
+} from 'geojson';
+import { ActivatedRoute } from '@angular/router';
+
+// ← Import your full neighborhoods GeoJSON (same one used by OpenLayers)
+import { neighborhoodsGeoJson } from '../data/neighbours';
 
 interface ZoneProperties {
   name: string;
-  intensity: number;
-  description: string;
+  intensity?: number;
+  description?: string;
 }
-
-const polygonGeoJson: FeatureCollection<Polygon, ZoneProperties> = {
-  type: 'FeatureCollection',
-  features: [
-    {
-      id: 1,
-      type: 'Feature',
-      properties: {
-        name: 'Zone A',
-        intensity: 8,
-        description: 'High activity: student events and traffic.'
-      },
-      geometry: {
-        type: 'Polygon',
-        coordinates: [[
-          [21.2205, 45.749],
-          [21.2235, 45.749],
-          [21.2235, 45.7515],
-          [21.2205, 45.7515],
-          [21.2205, 45.749]
-        ]]
-      }
-    },
-    {
-      id: 2,
-      type: 'Feature',
-      properties: {
-        name: 'Zone B',
-        intensity: 3,
-        description: 'Low density area with minimal activity.'
-      },
-      geometry: {
-        type: 'Polygon',
-        coordinates: [[
-          [21.224, 45.7485],
-          [21.2265, 45.7485],
-          [21.2265, 45.7508],
-          [21.224, 45.7508],
-          [21.224, 45.7485]
-        ]]
-      }
-    }
-  ]
-};
 
 @Component({
   selector: 'app-map-heat3d',
-  imports: [RouterModule],
   templateUrl: 'map-heat3-d.html',
   styleUrls: ['map-heat3-d.scss']
 })
@@ -70,148 +36,424 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
   map!: mapboxgl.Map;
   popup?: mapboxgl.Popup;
 
+  // Holds the regionName passed in via ?regionName=…
+  private regionName: string | null = null;
+
+  // ───> Keep track of which lightPreset is active. Default to "day".
+  public currentPreset: 'day' | 'dusk' | 'dawn' | 'night' = 'day';
+
+  constructor(private activatedRoute: ActivatedRoute) {}
+
   ngAfterViewInit(): void {
-    mapboxgl.accessToken = 'pk.eyJ1IjoiZW1hMTIxIiwiYSI6ImNtYmMycms1djE3azcybHF1d3pvMzM2NHQifQ.1kkI3Uwn4zAER6PYWpMknQ';
+    // 1) Read “regionName” from the URL query parameters
+    this.regionName = this.activatedRoute.snapshot.queryParamMap.get('regionName');
+
+    // 2) Initialize Mapbox GL with the Standard style
+    mapboxgl.accessToken =
+      'pk.eyJ1IjoiZW1hMTIxIiwiYSI6ImNtYmMycms1djE3azcybHF1d3pvMzM2NHQifQ.1kkI3Uwn4zAER6PYWpMknQ';
 
     this.map = new mapboxgl.Map({
       container: this.mapContainer.nativeElement,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [21.2225, 45.7502],
-      zoom: 15,
+      style: 'mapbox://styles/mapbox/standard',
+      center: [21.23771, 45.75616], // fallback center (Timisoara)
+      zoom: 13,
       pitch: 60,
       bearing: -17.6,
       antialias: true
     });
 
+    // ─────────────────────────────────────────────────────────────────
+    // A) Whenever the style is (re)loaded, re-apply our chosen lightPreset.
+    //    In practice, “style.load” fires after the initial load too, so this
+    //    will set Standard → “day” by default, then switch instantly if user changes.
+    // ─────────────────────────────────────────────────────────────────
+    this.map.on('style.load', () => {
+      // If you haven’t loaded any style or if Standard has just reloaded,
+      // set the basemap’s lightPreset to whatever we have in currentPreset.
+      (this.map as any).setConfigProperty('basemap', 'lightPreset', this.currentPreset);
+      // Note: In Mapbox GL JS v3+, setConfigProperty comes from the Style Import API.
+      // “basemap” refers to the imported Standard style within your style JSON.
+    });
+
+    // ─────────────────────────────────────────────────────────────────
+    // B) Run once when the map first finishes loading all of its built-in layers.
+    //    Here we:
+    //    1. Add terrain.
+    //    2. Add (optional) custom 3D‐building layer on top of Standard’s own.
+    //    3. Filter out “Zona A” / “Zone B”.
+    //    4. Add our zones as a GeoJSON source.
+    //    5. Show either a single region or all regions.
+    // ─────────────────────────────────────────────────────────────────
     this.map.on('load', () => {
+      // 1) Terrain and exaggeration:
       this.map.addSource('mapbox-dem', {
         type: 'raster-dem',
         url: 'mapbox://mapbox.terrain-rgb',
         tileSize: 512,
         maxzoom: 14
       });
-
       this.map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
 
-      this.map.addLayer({
-        id: 'sky',
-        type: 'sky',
-        paint: {
-          'sky-type': 'atmosphere',
-          'sky-atmosphere-sun': [0, 0],
-          'sky-atmosphere-sun-intensity': 15
+      // 3) FILTER OUT “Zona A” and “Zone B” from your neighborhoodsGeoJson:
+      const cleanedFeatures = (neighborhoodsGeoJson.features as any[]).filter((f) => {
+        const props = f.properties as GeoJsonProperties;
+        if (!props || !props['name']) {
+          return true; // keep if no name
         }
+        const nameLower = String(props['name']).toLowerCase();
+        return nameLower !== 'zona a' && nameLower !== 'zone b';
+      });
+      const cleanedGeoJson: FeatureCollection<Polygon | MultiPolygon, ZoneProperties> = {
+        type: 'FeatureCollection',
+        features: cleanedFeatures.map((f, index) => ({
+          type: 'Feature',
+          geometry: f.geometry,
+          properties: f.properties,
+          id: f.id ?? index // fallback to index if no id
+        }))
+
+      };
+
+      // 4) If a ?regionName=… was provided, filter cleanedGeoJson down to exactly that one feature.
+      const filteredGeoJson: FeatureCollection<Polygon | MultiPolygon, ZoneProperties> =
+        this.regionName
+          ? this.filterCollectionByName(this.regionName, cleanedGeoJson)
+          : cleanedGeoJson;
+
+      // 5) Add our zones as a GeoJSON source:
+      this.map.addSource('timisoara-zones', {
+        type: 'geojson',
+        data: filteredGeoJson
       });
 
-      this.map.addLayer({
-        id: '3d-buildings',
-        source: 'composite',
-        'source-layer': 'building',
-        type: 'fill-extrusion',
-        paint: {
-          'fill-extrusion-color': '#aaa',
-          'fill-extrusion-height': ['get', 'height'],
-          'fill-extrusion-base': ['get', 'min_height'],
-          'fill-extrusion-opacity': 0.6
-        }
-      });
-
-      this.addPolygonHeatmapLayer();
+      // 6) Depending on whether we have exactly one region or many, call showSingleRegion or showAllRegions:
+      if (this.regionName && filteredGeoJson.features.length === 1) {
+        this.showSingleRegion(filteredGeoJson.features[0]);
+      } else {
+        this.showAllRegions();
+      }
     });
   }
 
-  addPolygonHeatmapLayer() {
-    this.map.addSource('timisoara-zones', {
-      type: 'geojson',
-      data: polygonGeoJson
+  /**
+   * Called from the <select> when the user picks a new lightPreset.
+   * Immediately tell Mapbox Standard to switch to that preset.
+   */
+  onLightPresetChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const preset = selectElement.value as 'day' | 'dusk' | 'dawn' | 'night';
+
+    this.currentPreset = preset;
+
+    if (this.map && (this.map as any).setConfigProperty) {
+      (this.map as any).setConfigProperty('basemap', 'lightPreset', preset);
+    }
+  }
+
+
+  /**
+   * Filters a given GeoJSON collection to only the feature whose .properties.name === regionName.
+   * If none match, returns the full collection as a fallback.
+   */
+  private filterCollectionByName(
+    regionName: string,
+    sourceCollection: FeatureCollection<Polygon | MultiPolygon, ZoneProperties>
+  ): FeatureCollection<Polygon | MultiPolygon, ZoneProperties> {
+    const matched = sourceCollection.features.filter((f) => {
+      const props = f.properties as GeoJsonProperties;
+      return props && String(props['name']) === regionName;
     });
 
+    if (matched.length === 1) {
+      return {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: matched[0].geometry,
+            properties: matched[0].properties,
+            id: matched[0].id
+          }
+        ]
+      };
+    }
+
+    // No single match → return the entire cleaned collection
+    return sourceCollection;
+  }
+
+  /**
+   * Show exactly one polygon in “3D” (fill-extrusion), then fit camera to its BBox.
+   */
+  private showSingleRegion(feature: {
+    type: 'Feature';
+    geometry: Polygon | MultiPolygon;
+    properties: ZoneProperties;
+    id?: string | number;
+  }) {
+    if (!this.map) return;
+
+    // 1) Add a fill-extrusion layer for that single feature
     this.map.addLayer({
-      id: 'zone-heat',
-      type: 'fill',
+      id: 'selected-region-fill',
+      type: 'fill-extrusion',
       source: 'timisoara-zones',
       paint: {
-        'fill-color': [
-          'interpolate', ['linear'], ['get', 'intensity'],
-          0, 'rgba(33,102,172,0)',
-          2, 'rgb(103,169,207)',
-          4, 'rgb(209,229,240)',
-          6, 'rgb(253,219,199)',
-          8, 'rgb(239,138,98)',
-          10, 'rgb(178,24,43)'
-        ],
-        'fill-opacity': 0.7
+        // Bright, contrasting color (works in any lightPreset)
+        'fill-extrusion-color': '#FF5722',
+        'fill-extrusion-height': 30,
+        'fill-extrusion-base': 0,
+        'fill-extrusion-opacity': 0.8,
+        'fill-extrusion-emissive-strength': 0.5
       }
     });
 
+    // 2) Add an outline (line) layer for that same polygon
     this.map.addLayer({
-      id: 'zone-highlight',
+      id: 'selected-region-outline',
       type: 'line',
       source: 'timisoara-zones',
       paint: {
-        'line-color': '#ffff00',
+        'line-color': '#FFC107',
+        'line-width': 4
+      }
+    });
+
+    // 3) Compute bounding box & fit
+    const bbox = this.getGeoJSONFeatureBBox(feature.geometry);
+    this.map.fitBounds(
+      [
+        [bbox.minLng, bbox.minLat],
+        [bbox.maxLng, bbox.maxLat]
+      ],
+      { padding: 40, duration: 1500 }
+    );
+
+    // 4) Add hover interaction so user sees popup with name/description
+    this.addHoverInteraction('selected-region-fill');
+  }
+
+  /**
+   * Show all neighborhoods in flat “3D” (fill-extrusion), then fit camera to entire collection.
+   */
+  private showAllRegions() {
+    if (!this.map) return;
+
+    // 1) Add a fill-extrusion layer for all polygons
+    this.map.addLayer({
+      id: 'all-zones-fill',
+      type: 'fill-extrusion',
+      source: 'timisoara-zones',
+      paint: {
+        // Interpolated color by “intensity” if you have it; otherwise fallback to single hex
+        'fill-extrusion-color': [
+          'interpolate',
+          ['linear'],
+          ['coalesce', ['get', 'intensity'], 0],
+          0, '#2DC4B2',
+          1, '#3BB3C3',
+          2, '#669EC4',
+          3, '#8B88B6',
+          4, '#A2719B',
+          5, '#AA5E79'
+        ],
+        'fill-extrusion-height': 20,
+        'fill-extrusion-base': 0,
+        'fill-extrusion-opacity': 0.6,
+        'fill-extrusion-emissive-strength': 0.3
+      }
+    });
+
+    // 2) Add a “hover outline” line layer
+    this.map.addLayer({
+      id: 'all-zones-outline',
+      type: 'line',
+      source: 'timisoara-zones',
+      paint: {
+        'line-color': '#FFFFFF',
         'line-width': [
           'case',
-          ['boolean', ['feature-state', 'hover'], false], 3, 0
+          ['boolean', ['feature-state', 'hover'], false],
+          3, 0
         ],
         'line-opacity': [
           'case',
-          ['boolean', ['feature-state', 'hover'], false], 1, 0
+          ['boolean', ['feature-state', 'hover'], false],
+          1, 0
         ],
         'line-blur': [
           'case',
-          ['boolean', ['feature-state', 'hover'], false], 4, 0
+          ['boolean', ['feature-state', 'hover'], false],
+          4, 0
         ]
       }
     });
 
+    // 3) Fit camera to the bounding box of the entire cleaned collection
+    const src = this.map.getSource('timisoara-zones') as mapboxgl.GeoJSONSource;
+    const entireGeoJson = src.serialize().data as FeatureCollection<Polygon | MultiPolygon, ZoneProperties>;
+    const entireBBox = this.getGeoJSONFeatureBBoxForCollection(entireGeoJson);
+
+    this.map.fitBounds(
+      [
+        [entireBBox.minLng, entireBBox.minLat],
+        [entireBBox.maxLng, entireBBox.maxLat]
+      ],
+      { padding: 40, duration: 1500 }
+    );
+
+    // 4) Add hover interaction for all polygons
+    this.addHoverInteraction('all-zones-fill');
+  }
+
+  /**
+   * Hover logic: when the user moves over any polygon in the specified layer,
+   * outline it and display a popup of name/description.
+   */
+  private addHoverInteraction(layerId: string) {
+    if (!this.map) return;
+
     let hoveredId: number | null = null;
 
-    this.map.on('mousemove', 'zone-heat', (e) => {
-      const feature = e.features?.[0];
-      if (!feature || feature.geometry.type !== 'Polygon') return;
+    this.map.on('mousemove', layerId, (e) => {
+      const feature = e.features && e.features[0];
+      if (!feature || feature.geometry.type !== 'Polygon') {
+        return;
+      }
 
       this.map.getCanvas().style.cursor = 'pointer';
 
       if (hoveredId !== null) {
-        this.map.setFeatureState({ source: 'timisoara-zones', id: hoveredId }, { hover: false });
+        this.map.setFeatureState({ source: 'timisoara-zones', id: hoveredId }, { hover: true });
       }
 
-      hoveredId = feature.id as number;
-      this.map.setFeatureState({ source: 'timisoara-zones', id: hoveredId }, { hover: true });
 
-      const name = feature.properties?.['name'] ?? 'Unnamed Zone';
-      const description = feature.properties?.['description'] ?? 'No description';
 
-      const coords = feature.geometry.coordinates[0] as [number, number][];
 
-      const center: [number, number] = coords.reduce(
-        (acc: [number, number], coord: [number, number]) => [
-          acc[0] + coord[0],
-          acc[1] + coord[1]
-        ],
-        [0, 0]
-      ).map(c => c / coords.length) as [number, number];
+      if (hoveredId !== null) {
+        this.map.setFeatureState({ source: 'timisoara-zones', id: hoveredId }, { hover: true });
+      }
 
-      if (this.popup) this.popup.remove();
+
+      // TS4111 fix: feature.properties may be null, so guard it
+      const props = feature.properties as GeoJsonProperties | undefined;
+      const name = props && props['name'] ? String(props['name']) : 'Unnamed';
+      const description = props && props['description']
+        ? String(props['description'])
+        : '';
+
+      // TS2322 fix: compute polygon centroid safely
+      const coordsArray = this.extractLinearRing(feature.geometry);
+      const center = this.computeCentroid(coordsArray);
+
+      if (this.popup) {
+        this.popup.remove();
+      }
       this.popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false })
         .setLngLat(center)
         .setHTML(`<strong>${name}</strong><br><small>${description}</small>`)
         .addTo(this.map);
     });
 
-    this.map.on('mouseleave', 'zone-heat', () => {
+    this.map.on('mouseleave', layerId, () => {
       this.map.getCanvas().style.cursor = '';
       if (hoveredId !== null) {
-        this.map.setFeatureState({ source: 'timisoara-zones', id: hoveredId }, { hover: false });
+        this.map.setFeatureState({ source: 'timisoara-zones', id: hoveredId }, { hover: true });
       }
+
       hoveredId = null;
-      if (this.popup) this.popup.remove();
+      if (this.popup) {
+        this.popup.remove();
+      }
     });
   }
 
   ngOnDestroy(): void {
-    if (this.map) this.map.remove();
+    if (this.map) {
+      this.map.remove();
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Utility: Given a Polygon or MultiPolygon geometry, extract the “outer ring”
+  // as an array of [lng, lat] pairs. (Handles both types cleanly.)
+  // ─────────────────────────────────────────────────────────────────
+  private extractLinearRing(
+    geometry: Polygon | MultiPolygon
+  ): Array<[number, number]> {
+    if (geometry.type === 'Polygon') {
+      // geometry.coordinates is number[][][] → outer ring is coordinates[0]
+      return (geometry.coordinates[0] as Array<[number, number]>);
+    } else {
+      // geometry.type === 'MultiPolygon'
+      // geometry.coordinates is number[][][][] → take coordinates[0][0]
+      return (geometry.coordinates[0][0] as Array<[number, number]>);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Utility: Compute centroid of a simple linear ring in [lng,lat] space
+  // (Just arithmetic mean of vertices.)
+  // ─────────────────────────────────────────────────────────────────
+  private computeCentroid(ring: Array<[number, number]>): [number, number] {
+    let sumLng = 0,
+      sumLat = 0;
+    for (const [lng, lat] of ring) {
+      sumLng += lng;
+      sumLat += lat;
+    }
+    const count = ring.length || 1;
+    return [sumLng / count, sumLat / count];
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Utility: Compute bounding box (minLng, minLat, maxLng, maxLat)
+  // for a single Polygon or MultiPolygon feature.
+  // ─────────────────────────────────────────────────────────────────
+  private getGeoJSONFeatureBBox(
+    geometry: Polygon | MultiPolygon
+  ): { minLng: number; minLat: number; maxLng: number; maxLat: number } {
+    const ring = this.extractLinearRing(geometry);
+    let minLng = ring[0][0],
+      maxLng = ring[0][0],
+      minLat = ring[0][1],
+      maxLat = ring[0][1];
+
+    for (const [lng, lat] of ring) {
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+    }
+
+    return { minLng, minLat, maxLng, maxLat };
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Utility: Compute bounding box for an entire FeatureCollection
+  // ─────────────────────────────────────────────────────────────────
+  private getGeoJSONFeatureBBoxForCollection(
+    fc: FeatureCollection<Polygon | MultiPolygon, ZoneProperties>
+  ): { minLng: number; minLat: number; maxLng: number; maxLat: number } {
+    let minLng = Infinity,
+      maxLng = -Infinity,
+      minLat = Infinity,
+      maxLat = -Infinity;
+
+    for (const feature of fc.features) {
+      const { minLng: fMinLng, minLat: fMinLat, maxLng: fMaxLng, maxLat: fMaxLat } =
+        this.getGeoJSONFeatureBBox(feature.geometry);
+
+      if (fMinLng < minLng) minLng = fMinLng;
+      if (fMaxLng > maxLng) maxLng = fMaxLng;
+      if (fMinLat < minLat) minLat = fMinLat;
+      if (fMaxLat > maxLat) maxLat = fMaxLat;
+    }
+
+    return { minLng, minLat, maxLng, maxLat };
+  }
+
+  onLightPresetClick(day: string) {
+    
   }
 }
-
