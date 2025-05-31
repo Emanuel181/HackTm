@@ -29,13 +29,13 @@ export const routes: Routes = [
     component: MapHeat3DComponent
   },
   {
+    path: 'auth',
+    component: AuthComponent
+  },
+  {
     path: '**',
     redirectTo: 'home'
   },
-  {
-    path: 'auth',
-    component: AuthComponent
-  }
 ];
 
 

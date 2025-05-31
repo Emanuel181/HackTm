@@ -19,8 +19,8 @@ export class AuthComponent {
     this.submitted = true;
     this.error = '';
 
-    if (!this.email || !this.password) {
-      this.error = 'Both fields are required.';
+    if (!this.email) {
+      this.error = 'This field is required.';
       return;
     }
 
