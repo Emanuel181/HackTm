@@ -25,4 +25,9 @@ class GetSesizariByCartier(Resource):
     @api.marshal_list_with(sesizare_model)
     def get(self, cartier):
         docs = db.collection('sesizari').where('cartier', '==', cartier).stream()
-        return [doc.to_dict() for doc in docs]
+        sesizari = [doc.to_dict() for doc in docs]
+
+        # sort by score (upvotes - downvotes)
+        sesizari.sort(key=lambda s: s.get("upvotes", 0) - s.get("downvotes", 0), reverse=True)
+
+        return sesizari
