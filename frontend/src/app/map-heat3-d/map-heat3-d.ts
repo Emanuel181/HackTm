@@ -462,4 +462,5 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+
 }
