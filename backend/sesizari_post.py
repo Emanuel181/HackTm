@@ -3,6 +3,7 @@ from flask import request, abort
 from sesizari_routes import sesizare_model
 from firebase_admin import firestore
 from firebase_client import db 
+from flask_cors import cross_origin
 
 api = Namespace('sesizari_post', description='Operations related to sesizari')
 
