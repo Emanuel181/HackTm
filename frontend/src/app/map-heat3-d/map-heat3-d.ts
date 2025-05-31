@@ -212,3 +212,4 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
     if (this.map) this.map.remove();
   }
 }
+

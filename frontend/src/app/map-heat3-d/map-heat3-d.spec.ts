@@ -21,3 +21,4 @@ describe('MapHeat3D', () => {
     expect(component).toBeTruthy();
   });
 });
+
