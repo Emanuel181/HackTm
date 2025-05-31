@@ -9,6 +9,7 @@ api = Namespace('sesizari_post', description='Operations related to sesizari')
 
 @api.route('/send_vote/upvote/<string:sesizare_id>/<string:user_id>')
 class UpvoteSesizare(Resource):
+    @cross_origin()
     def put(self, sesizare_id, user_id):
         sesizare_query = db.collection('sesizari').where('id', '==', sesizare_id).stream()
         sesizare_doc = next(sesizare_query, None)
@@ -43,6 +44,7 @@ class UpvoteSesizare(Resource):
 
 @api.route('/send_vote/downvote/<string:sesizare_id>/<string:user_id>')
 class DownvoteSesizare(Resource):
+    @cross_origin()
     def put(self, sesizare_id, user_id):
         sesizare_query = db.collection('sesizari').where('id', '==', sesizare_id).stream()
         sesizare_doc = next(sesizare_query, None)
@@ -77,6 +79,7 @@ class DownvoteSesizare(Resource):
 
 @api.route('/send_comment/<string:sesizare_id>')
 class AddComment(Resource):
+    @cross_origin()
     def post(self, sesizare_id):
         data = request.get_json()
         comment = data.get('comment')
