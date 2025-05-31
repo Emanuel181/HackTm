@@ -4,8 +4,7 @@ import { SesizariComponent } from './components/sesizari/sesizari.component';
 import { SesizarileMeleComponent } from './components/sesizarile-mele/sesizarile-mele.component';
 import { ZoneVizualeComponent } from './components/zone-vizuale/zone-vizuale.component';
 import { HomeComponent } from './components/home/home.component';
-import { AuthComponent } from './components/auth/auth.component';
-
+import { MapHeat3DComponent } from './map-heat3-d/map-heat3-d';
 
 export const routes: Routes = [
   {
@@ -29,17 +28,17 @@ export const routes: Routes = [
     path: 'zone-vizuale',
     component: ZoneVizualeComponent
   },
-  {
-    path: 'autentificare',
-    component: AuthComponent
-  },
-
+//   {
+//     path: 'heat-map',
+//     component: MapHeat3DComponent
+//   },
   {
     path: '**',
     redirectTo: 'home'
-  },
-
+  }
 ];
+
+
 @NgModule({
   imports: [
     RouterModule.forRoot(routes)

@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import mapboxgl from 'mapbox-gl';
 import { FeatureCollection, Polygon } from 'geojson';
+import { RouterModule, RouterOutlet } from '@angular/router';
 
 interface ZoneProperties {
   name: string;
@@ -60,6 +61,7 @@ const polygonGeoJson: FeatureCollection<Polygon, ZoneProperties> = {
 
 @Component({
   selector: 'app-map-heat3d',
+  imports: [RouterModule],
   templateUrl: 'map-heat3-d.html',
   styleUrls: ['map-heat3-d.scss']
 })
