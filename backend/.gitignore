@@ -1,7 +1,1 @@
-# Ignore virtual environment
 backend/venv/
-
-# Ignore SQLite database
-db.sqlite3
-
-**/__pycache__/
