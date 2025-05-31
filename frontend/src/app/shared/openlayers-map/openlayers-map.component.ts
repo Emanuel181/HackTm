@@ -25,6 +25,10 @@ import Stroke from 'ol/style/Stroke';
 import Fill from 'ol/style/Fill';
 import Style from 'ol/style/Style';
 
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import CircleStyle from 'ol/style/Circle';
+
 @Component({
   selector: 'app-openlayers-map',
   templateUrl: './openlayers-map.component.html',
@@ -33,6 +37,7 @@ import Style from 'ol/style/Style';
 export class OpenlayersMapComponent implements OnInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
   private map!: Map;
+  private view!: View;
 
   // ─────────────────────────────────────────────────────────────────
   // Inlined GeoJSON with an added “Timisoara” polygon (approximate bounding box)
@@ -882,40 +887,7 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
     ]
   };
 
-  ngOnInit(): void {
-    this.initMap();
-  }
-
-  ngOnDestroy(): void {
-    if (this.map) {
-      this.map.setTarget(undefined);
-    }
-  }
-
-  private initMap(): void {
-    // 1. Base OSM tile layer
-    const osmLayer = new TileLayer({
-      source: new OSM()
-    });
-
-    // 2. View centered on Timișoara (we’ll fit to data later)
-    const view = new View({
-      center: fromLonLat([21.2087, 45.7489]),
-      zoom: 13
-    });
-
-    // 3. Instantiate the map
-    this.map = new Map({
-      target: this.mapContainer.nativeElement,
-      layers: [osmLayer],
-      view
-    });
-
-    // 4. Add inlined polygons (including the whole‐city rectangle)
-    this.addNeighborhoodsFromData();
-  }
-
-private addNeighborhoodsFromData(): void {
+  private addNeighborhoodsFromData(): void {
   const format = new GeoJSON();
 
   // Read features (EPSG:4326 → EPSG:3857)
@@ -939,7 +911,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Iosefin') {
         return new Style({
           stroke: new Stroke({ color: '#CC5500', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#CC5500', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#CC5500', 0.1) })
         });
       }
 
@@ -947,7 +919,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Dâmbovița') {
         return new Style({
           stroke: new Stroke({ color: '#228B22', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#228B22', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#228B22', 0.1) })
         });
       }
 
@@ -955,7 +927,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Circumvalațiunii + Dacia') {
         return new Style({
           stroke: new Stroke({ color: '#1E90FF', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#1E90FF', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#1E90FF', 0.1) })
         });
       }
 
@@ -963,7 +935,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Blașcovici') {
         return new Style({
           stroke: new Stroke({ color: '#800080', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#800080', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#800080', 0.1) })
         });
       }
 
@@ -971,7 +943,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Mehala') {
         return new Style({
           stroke: new Stroke({ color: '#008080', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#008080', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#008080', 0.1) })
         });
       }
 
@@ -979,7 +951,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Ronaț') {
         return new Style({
           stroke: new Stroke({ color: '#A0522D', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#A0522D', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#A0522D', 0.1) })
         });
       }
 
@@ -987,7 +959,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Aradului') {
         return new Style({
           stroke: new Stroke({ color: '#FF1493', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#FF1493', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#FF1493', 0.1) })
         });
       }
 
@@ -995,7 +967,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Torontalului') {
         return new Style({
           stroke: new Stroke({ color: '#32CD32', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#32CD32', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#32CD32', 0.1) })
         });
       }
 
@@ -1003,7 +975,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Lipovei') {
         return new Style({
           stroke: new Stroke({ color: '#FF00FF', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#FF00FF', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#FF00FF', 0.1) })
         });
       }
 
@@ -1011,7 +983,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Tipografilor') {
         return new Style({
           stroke: new Stroke({ color: '#DAA520', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#DAA520', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#DAA520', 0.1) })
         });
       }
 
@@ -1019,7 +991,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Bastion') {
         return new Style({
           stroke: new Stroke({ color: '#00CED1', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#00CED1', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#00CED1', 0.1) })
         });
       }
 
@@ -1027,7 +999,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Elisabetin') {
         return new Style({
           stroke: new Stroke({ color: '#FF7F50', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#FF7F50', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#FF7F50', 0.1) })
         });
       }
 
@@ -1035,7 +1007,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Șagului') {
         return new Style({
           stroke: new Stroke({ color: '#000080', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#000080', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#000080', 0.1) })
         });
       }
 
@@ -1043,7 +1015,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Girocului') {
         return new Style({
           stroke: new Stroke({ color: '#808000', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#808000', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#808000', 0.1) })
         });
       }
 
@@ -1051,7 +1023,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Fabric') {
         return new Style({
           stroke: new Stroke({ color: '#800000', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#800000', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#800000', 0.1) })
         });
       }
 
@@ -1059,7 +1031,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Olimpia-Stadion') {
         return new Style({
           stroke: new Stroke({ color: '#708090', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#708090', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#708090', 0.1) })
         });
       }
 
@@ -1067,7 +1039,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Soarelui') {
         return new Style({
           stroke: new Stroke({ color: '#00FFFF', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#00FFFF', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#00FFFF', 0.1) })
         });
       }
 
@@ -1075,7 +1047,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Buziașului') {
         return new Style({
           stroke: new Stroke({ color: '#7FFF00', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#7FFF00', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#7FFF00', 0.1) })
         });
       }
 
@@ -1083,7 +1055,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Cetate') {
         return new Style({
           stroke: new Stroke({ color: '#FF0000', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#FF0000', 0.3) })
+          fill: new Fill({ color: this.hexToRgba('#FF0000', 0.1) })
         });
       }
 
@@ -1091,7 +1063,7 @@ private addNeighborhoodsFromData(): void {
       if (name === 'Complexul Studențesc') {
         return new Style({
           stroke: new Stroke({ color: '#1E90FF', width: 2 }),
-          fill: new Fill({ color: this.hexToRgba('#1E90FF', 0.4) })
+          fill: new Fill({ color: this.hexToRgba('#1E90FF', 0.1) })
         });
       }
 
@@ -1112,7 +1084,117 @@ private addNeighborhoodsFromData(): void {
   this.map.getView().fit(extent, { padding: [50, 50, 50, 50] });
 }
 
+  ngOnInit(): void {
+    this.initMap();
+    this.centerOnUserLocation();
+  }
 
+  ngOnDestroy(): void {
+    if (this.map) {
+      this.map.setTarget(undefined);
+    }
+  }
+
+  private initMap(): void {
+    // 1. Base OSM tile layer
+    const osmLayer = new TileLayer({
+      source: new OSM()
+    });
+
+    // 2. View centered on Timișoara (we’ll fit to data later)
+    this.view = new View({
+      center: fromLonLat([21.23771, 45.75616]),
+      zoom: 13
+    });
+
+    // 3. Instantiate the map
+    this.map = new Map({
+      target: this.mapContainer.nativeElement,
+      layers: [osmLayer],
+      view: this.view
+    });
+
+    // 4. Add inlined polygons (including the whole‐city rectangle)
+    this.addNeighborhoodsFromData();
+  }
+
+   private centerOnUserLocation(): void {
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = 45.75616;
+        const longitude = 21.23771;
+        const rawCoords = fromLonLat([longitude, latitude]);
+        const userCoords3857: number[] = rawCoords;
+
+        // 1) Calculate a pixel-based vertical offset (e.g. 100px)
+        //    so that the marker sits lower in the map container.
+        const resolution = this.view.getResolution()!;        // meters per pixel
+        const pixelShift = -5;                                // “how many pixels down”
+        const yOffsetMeters = resolution * pixelShift;         // convert px to map units
+
+        // 2) Build a new center: same X, Y + offset
+        const shiftedCenter: [number, number] = [
+          userCoords3857[0],
+          userCoords3857[1] + yOffsetMeters
+        ];
+
+        // 3) Re-center & zoom
+        this.view.setCenter(shiftedCenter);
+        this.view.setZoom(18);
+
+        // 4) Add the “You are here” marker at the true location
+        this.addUserLocationMarker(userCoords3857);
+      },
+      (error) => {
+        console.warn('Geolocation error:', error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
+      }
+    );
+  } else {
+    console.warn('Browser does not support geolocation.');
+  }
+}
+
+  private addUserLocationMarker(coord3857: number[]): void {
+    // 1. Create a point feature at the user’s location
+    const userFeature = new Feature({
+      geometry: new Point(coord3857),
+      name: 'You are here'
+    });
+
+    // 2. Style the feature as a small filled circle with a stroke
+    userFeature.setStyle(
+      new Style({
+        image: new CircleStyle({
+          radius: 6,
+          fill: new Fill({
+            color: 'rgba(0, 120, 220, 0.8)' // semi‐opaque blue
+          }),
+          stroke: new Stroke({
+            color: '#ffffff',
+            width: 2
+          })
+        })
+      })
+    );
+
+    // 3. Put that in its own vector source/layer so it’s always on top
+    const userLocationSource = new VectorSource({
+      features: [userFeature]
+    });
+    const userLocationLayer = new VectorLayer({
+      source: userLocationSource,
+      zIndex: 999 // ensure it’s drawn above other layers
+    });
+
+    // 4. Add it to the map
+    this.map.addLayer(userLocationLayer);
+  }
   /**
    * Utility: Convert “#RRGGBB” → “rgba(r,g,b,a)”
    */
