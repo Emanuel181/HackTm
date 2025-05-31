@@ -57,6 +57,12 @@ class CreateSesizare(Resource):
         data['created_at'] = datetime.utcnow().isoformat()
 
         data["cartier"] = get_neighborhood_for_point(data["locatie"]["lat"], data["locatie"]["lng"])
+        data["comments"] = []
+        data["upvotes"] = 0
+        data["downvotes"] = 0
+
+        if "url_poza" not in data:
+            data["url_poza"] = ""
 
         # Save to Firestore
         new_doc_ref = db.collection('sesizari').document()
