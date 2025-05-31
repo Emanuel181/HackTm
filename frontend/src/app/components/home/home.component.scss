@@ -1,12 +1,53 @@
 .home‐container {
   display: flex;
   justify-content: center;
-  margin-top: 2rem;
+  flex-direction: column;
+}
+
+.img-principala {
+  width: 100%;
+  height: 25rem;
+  object-fit: cover;
+  opacity: 80%;
 }
 
 .map‐card {
   width: 80%;
   margin: 0 auto;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+
+  .mat-mdc-card-header {
+    padding: 16px;
+  }
+  
+  .mat-mdc-card-title {
+    font-weight: 600;
+    font-size: medium;
+    color: white;
+  }
+  
+  .mat-mdc-card-content:last-child {
+    padding-bottom: 0px;
+  }
+}
+
+.mat-mdc-card {
+  background-color: #005cbb;
+  overflow: hidden;
+}
+
+.cards {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.info-card {
+  width: 25%;
+  background-color: transparent;
 }
 
 .card‐content‐no‐padding {
@@ -18,25 +59,6 @@
   width: 100%;
   height: 75svh;
   overflow: hidden;
-}
-
-.mat-mdc-card-header {
-  padding: 16px;
-}
-
-.mat-mdc-card-title {
-  font-weight: 600;
-  font-size: medium;
-  color: white;
-}
-
-.mat-mdc-card {
-  background-color: #005cbb;
-  overflow: hidden;
-}
-
-.mat-mdc-card-content:last-child {
-  padding-bottom: 0px;
 }
 
 @media (max-width: 600px) {
