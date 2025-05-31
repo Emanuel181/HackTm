@@ -1,14 +1,70 @@
+<!-- src/app/sesizari/sesizari.component.html -->
+
 <div class="cards-container">
-    <mat-card class="example-card">
-        <mat-card-header>
-            <img mat-card-lg-image src="https://material.angular.dev/assets/img/examples/shiba2.jpg" >
-            <mat-card-title-group>
-                <mat-card-title>Shiba Inu</mat-card-title>
-                <mat-card-subtitle>Large</mat-card-subtitle>
-            </mat-card-title-group>
-        </mat-card-header>
-        <mat-card-content>
-            aaa
-        </mat-card-content>
-    </mat-card>
+  <mat-card *ngFor="let item of data" class="sesizare-card">
+    <div class="card-content">
+      <!-- LEFT COLUMN: Image (or placeholder) -->
+      <div class="card-image-container">
+        <img
+          *ngIf="item.url_poza && item.url_poza.length; else noImage"
+          [src]="item.url_poza"
+          alt="Complaint Image"
+          class="card-image"
+        />
+        <ng-template #noImage>
+          <div class="no-image-placeholder">
+            <mat-icon>image_not_supported</mat-icon>
+            <span>No Image</span>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- RIGHT COLUMN: All textual details -->
+      <div class="card-details-container">
+        <!-- Top row: Title (center‐left) + Status badge (top‐right) -->
+        <div class="card-header">
+          <div class="card-title">
+            {{ item.titlu }}
+          </div>
+          <div class="card-status">
+            <mat-chip
+              [color]="item.status === 'active' ? 'primary' : 'warn'"
+              selected
+            >
+              {{ item.status | titlecase }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <div class="card-category">
+          Categorie: {{ item.categorie }}
+        </div>
+
+        <div class="card-created-at">
+          {{ item.created_at | date: 'medium' }}
+        </div>
+
+        <div class="card-description">
+          {{ item.descriere }}
+        </div>
+
+        <div class="card-footer">
+            <button mat-button [ngClass]="{'disable-click': 'disabled'}">
+                <mat-icon aria-hidden="false" aria-label="Upvotes">
+                thumb_up
+                </mat-icon>
+                {{ item.upvotes }}
+            </button>
+          
+            <button mat-button [ngClass]="{'disable-click': 'disabled'}">
+                <mat-icon aria-hidden="false" aria-label="Downvotes">
+                thumb_down
+                </mat-icon>
+                {{ item.downvotes }}
+            </button>
+
+        </div>
+      </div>
+    </div>
+  </mat-card>
 </div>

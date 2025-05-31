@@ -1,17 +1,143 @@
+/* src/app/sesizari/sesizari.component.scss */
+
+/* ── Container for all cards ── */
 .cards-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;         /* space between cards */
+  padding: 16px;
 }
 
-mat-card {
-    width: 80%;
+/* ── Each individual card ── */
+.sesizare-card {
+  width: 100%;
+  max-width: 800px;  /* give it more horizontal room */
+  margin: 0 auto;    /* center it horizontally on larger screens */
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-@media (max-width: 600px) {
-    mat-card {
-        width: 90%;
-    }
-  }
+/* ── Main card content is a 2-column flex ── */
+.card-content {
+  display: flex;
+  flex-direction: row;
+}
+
+/* ── Left: fixed‐width image container ── */
+.card-image-container {
+  flex: 0 0 240px;           /* fixed width for the image column */
+  background-color: #f5f5f5;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.card-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* When no image, a placeholder with icon/text */
+.no-image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 16px;
+}
+
+.no-image-placeholder mat-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+/* ── Right: details container which expands ── */
+.card-details-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px 24px;
+}
+
+/* Top row: title + status chip ── */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.card-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.card-status mat-chip {
+  font-size: 0.85rem;
+  height: 28px;
+  line-height: 28px;
+  text-transform: capitalize;
+}
+
+/* Category just under the title */
+.card-category {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+/* Created‐at date styling */
+.card-created-at {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 12px;
+}
+
+/* Description area (will grow if multiple lines) */
+.card-description {
+  flex: 1;
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.4;
+  white-space: pre-wrap;  /* preserve line breaks if any */
+  margin-bottom: 12px;
+}
+
+/* Bottom row: upvote/downvote aligned to bottom‐right */
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 12px;
+}
+
+.vote-button {
+  display: flex;
+  align-items: center;
+  color: #555;
+  font-size: 0.95rem;
+  text-transform: none;
+}
+
+.vote-button mat-icon {
+  margin-right: 4px;
+  font-size: 20px;
+}
+
+.disable-click {
+  pointer-events: none;
+  cursor: default;
+  color: #555;
+}
