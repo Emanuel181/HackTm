@@ -20,6 +20,25 @@
   overflow: hidden;
 }
 
+.mat-mdc-card-header {
+  padding: 16px;
+}
+
+.mat-mdc-card-title {
+  font-weight: 600;
+  font-size: medium;
+  color: white;
+}
+
+.mat-mdc-card {
+  background-color: #005cbb;
+  overflow: hidden;
+}
+
+.mat-mdc-card-content:last-child {
+  padding-bottom: 0px;
+}
+
 @media (max-width: 600px) {
   .map‐card {
     width: 90%;

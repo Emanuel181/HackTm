@@ -27,7 +27,8 @@ sesizare_model = api.model('Sesizare', {
     'upvotes': fields.Integer(required=False, description='Number of upvotes', default=0),
     'downvotes': fields.Integer(required=False, description='Number of downvotes', default=0),
     'comments': fields.List(fields.String, required=False, description='List of admin comments'),
-    'cartier': fields.String(required=False, description='Zone in the city')
+    'cartier': fields.String(required=False, description='Zone in the city'),
+    'interactions': fields.Raw(required=False, description='Map of user IDs to vote status (like/dislike)')
 })
 
 @api.route('/get_sesizari/all')
