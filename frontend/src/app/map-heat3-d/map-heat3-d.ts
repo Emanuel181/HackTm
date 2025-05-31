@@ -453,7 +453,13 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
     return { minLng, minLat, maxLng, maxLat };
   }
 
-  onLightPresetClick(day: string) {
-    
+  onLightPresetClick(preset: 'day' | 'dawn' | 'dusk' | 'night') {
+    this.currentPreset = preset;
+
+    // Apply preset to the map if style is loaded
+    if (this.map && (this.map as any).setConfigProperty) {
+      (this.map as any).setConfigProperty('basemap', 'lightPreset', preset);
+    }
   }
+
 }
