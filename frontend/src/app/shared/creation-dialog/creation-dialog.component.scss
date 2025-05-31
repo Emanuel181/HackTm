@@ -1,33 +1,28 @@
 /* src/app/creation-dialog/creation-dialog.component.scss */
 
-/* ---------- Overall Card ---------- */
-.dialog-card {
-  width: 100%;
-  max-width: 600px;
-  padding: 0;
-}
-
 /* ---------- Dialog Title ---------- */
 .dialog-title {
-  margin: 16px 24px 0;
+  margin: 2rem;
   font-size: 1.5rem;
   display: flex;
-  justify-content: center;
+  justify-content: left;
 }
 
 /* ── VIEW MODE LAYOUT ── */
 .view-container {
   display: flex;
   flex-direction: row;
-  padding: 16px;
+  padding: 2rem;
   gap: 16px;
+  border-top: 1px solid rgb(230, 230, 230);
 }
 
 /* Left column: fixed width for image */
 .view-image-container {
-  flex: 0 0 200px;
+  flex: 0 0 240px;
   display: flex;
   justify-content: center;
+  background-color: #005cbb;
   align-items: center;
   border-radius: 4px;
   overflow: hidden;
@@ -36,7 +31,7 @@
 .view-image {
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 /* Placeholder when no image is provided */
@@ -114,6 +109,21 @@
   margin-right: 4px;
 }
 
+.status-chip--active {
+  border: 1px solid #4caf50 !important;
+  --mdc-chip-disabled-label-text-color: #4caf50 !important;
+}
+
+.status-chip--removed {
+  border: 1px solid #f44336 !important;
+  --mdc-chip-disabled-label-text-color: #f44336 !important;
+}
+
+.status-chip--warning {
+  border: 1px solid #ff9800 !important;
+  --mdc-chip-disabled-label-text-color: #ff9800 !important;
+}
+
 /* ── CREATE MODE FORM LAYOUT (unchanged) ── */
 .full-width {
   width: 100%;
@@ -136,4 +146,10 @@
 .create-form,
 .mat-dialog-content {
   padding: 16px 24px;
+}
+
+@media (max-width: 600px) {
+  .view-image-container {
+    flex: 0 0 100px;
+  }
 }

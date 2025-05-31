@@ -1,8 +1,8 @@
-<mat-card class="dialog-card">
-  <h2 mat-dialog-title class="dialog-title" style="margin-left: 20%">
-    {{ isViewMode ? 'Complaint Details' : 'Create a New Complaint' }}
-  </h2>
 
+  <h2 class="dialog-title">
+    {{ isViewMode ? 'Detalii Sesizare' : 'Creează o nouă sesizare' }}
+  </h2>
+  
   <div *ngIf="isViewMode" class="view-container">
     <div class="view-image-container">
       <img
@@ -25,18 +25,25 @@
       <div class="view-header">
         <div class="view-title">{{ data.titlu }}</div>
         <div class="view-status">
-          <mat-chip
-            [color]="data.status === 'active' ? 'primary' : 'warn'"
-            selected
-          >
-            {{ data.status | titlecase }}
-          </mat-chip>
+          <mat-chip disabled
+                [ngClass]="{
+                    'status-chip--active': data.status === 'active',
+                    'status-chip--removed': data.status === 'removed',
+                    'status-chip--warning': data.status === 'warning' || data.status === 'pending'
+                }"
+                selected
+                >
+                {{ data.status | titlecase }}
+            </mat-chip>
         </div>
+      </div>
+
+      <div class="view-category">
+        Categorie: {{ data.categorie }}
       </div>
 
       <!-- Created At (beneath the header) -->
       <div class="view-created-at">
-        Created on:
         {{ data.created_at | date: 'medium' }}
       </div>
 
@@ -48,9 +55,9 @@
       <!-- Bottom Row: Upvotes / Downvotes aligned to bottom right -->
       <div class="view-footer">
         <div class="vote-counts">
-          <button mat-button><mat-icon aria-hidden="false" aria-label="Upvotes">thumb_up</mat-icon>{{ data.upvotes }}</button>
+          <button mat-button><mat-icon aria-hidden="false" aria-label="Upvotes">arrow_upward</mat-icon>{{ data.upvotes }}</button>
           &nbsp;&nbsp;
-          <button mat-button><mat-icon aria-hidden="false" aria-label="Downvotes">thumb_down</mat-icon>{{ data.downvotes }}</button>
+          <button mat-button><mat-icon aria-hidden="false" aria-label="Downvotes">arrow_downward</mat-icon>{{ data.downvotes }}</button>
         </div>
       </div>
     </div>
@@ -115,4 +122,3 @@
       </button>
     </mat-dialog-actions>
   </form>
-</mat-card>
