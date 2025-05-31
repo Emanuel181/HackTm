@@ -1,124 +1,158 @@
+<h2 class="dialog-title">
+  {{ data.mode == 'view' ? 'Detalii Sesizare' : 'Creează o nouă sesizare' }}
+</h2>
 
-  <h2 class="dialog-title">
-    {{ isViewMode ? 'Detalii Sesizare' : 'Creează o nouă sesizare' }}
-  </h2>
-  
-  <div *ngIf="isViewMode" class="view-container">
-    <div class="view-image-container">
-      <img
-        *ngIf="data?.url_poza; else noImage"
-        [src]="data.url_poza"
-        alt="Complaint Image"
-        class="view-image"
-      />
-      <ng-template #noImage>
-        <div class="no-image-placeholder">
-          <mat-icon>image_not_supported</mat-icon>
-          <span>No Image</span>
-        </div>
-      </ng-template>
+<!-- VIEW MODE -->
+<div *ngIf="data.mode == 'view'" class="view-container">
+  <div class="view-image-container">
+    <img
+      *ngIf="data?.item.url_poza; else noImage"
+      [src]="data.item.url_poza"
+      alt="Complaint Image"
+      class="view-image"
+    />
+    <ng-template #noImage>
+      <div class="no-image-placeholder">
+        <mat-icon>image_not_supported</mat-icon>
+        <span>No Image</span>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- RIGHT: Textual details -->
+  <div class="view-details-container">
+    <div class="view-header">
+      <div class="view-title">{{ data.item.titlu }}</div>
+      <div class="view-status">
+        <mat-chip disabled
+                  [ngClass]="{
+                    'status-chip--active': data.item.status === 'active',
+                    'status-chip--removed': data.item.status === 'removed',
+                    'status-chip--warning': data.item.status === 'warning' || data.item.status === 'pending'
+                  }"
+                  selected>
+          {{ data.item.status | titlecase }}
+        </mat-chip>
+      </div>
     </div>
 
-    <!-- RIGHT: Textual details -->
-    <div class="view-details-container">
-      <!-- Top Row: Title (left) & Status (right) -->
-      <div class="view-header">
-        <div class="view-title">{{ data.titlu }}</div>
-        <div class="view-status">
-          <mat-chip disabled
-                [ngClass]="{
-                    'status-chip--active': data.status === 'active',
-                    'status-chip--removed': data.status === 'removed',
-                    'status-chip--warning': data.status === 'warning' || data.status === 'pending'
-                }"
-                selected
-                >
-                {{ data.status | titlecase }}
-            </mat-chip>
-        </div>
-      </div>
+    <div class="view-category">
+      Categorie: {{ data.item.categorie }}
+    </div>
 
-      <div class="view-category">
-        Categorie: {{ data.categorie }}
-      </div>
+    <div class="view-created-at">
+      {{ data.item.created_at | date: 'medium' }}
+    </div>
 
-      <!-- Created At (beneath the header) -->
-      <div class="view-created-at">
-        {{ data.created_at | date: 'medium' }}
-      </div>
+    <div class="view-description">
+      {{ data.item.descriere }}
+    </div>
 
-      <!-- Description (middle) -->
-      <div class="view-description">
-        {{ data.descriere }}
-      </div>
-
-      <!-- Bottom Row: Upvotes / Downvotes aligned to bottom right -->
-      <div class="view-footer">
-        <div class="vote-counts">
-          <button mat-button><mat-icon aria-hidden="false" aria-label="Upvotes">arrow_upward</mat-icon>{{ data.upvotes }}</button>
-          &nbsp;&nbsp;
-          <button mat-button><mat-icon aria-hidden="false" aria-label="Downvotes">arrow_downward</mat-icon>{{ data.downvotes }}</button>
-        </div>
+    <div class="view-footer">
+      <div class="vote-counts">
+        <button mat-button>
+          <mat-icon aria-hidden="false" aria-label="Upvotes">arrow_upward</mat-icon>
+          {{ data.item.upvotes }}
+        </button>
+        &nbsp;&nbsp;
+        <button mat-button>
+          <mat-icon aria-hidden="false" aria-label="Downvotes">arrow_downward</mat-icon>
+          {{ data.item.downvotes }}
+        </button>
       </div>
     </div>
   </div>
+</div>
 
-  <form
-    *ngIf="!isViewMode"
-    [formGroup]="form"
-    (ngSubmit)="onCreate()"
-    class="create-form"
-  >
-    <mat-dialog-content class="dialog-content">
-      <!-- TITLE FIELD -->
-      <mat-form-field appearance="fill" class="full-width">
-        <mat-label>Title</mat-label>
-        <input matInput formControlName="title" />
-        <mat-error *ngIf="form.get('title')?.hasError('required')">
-          Title is required
-        </mat-error>
-      </mat-form-field>
+<!-- CREATE MODE -->
+<form
+  *ngIf="data.mode == 'create'"
+  [formGroup]="form"
+  (ngSubmit)="onCreate()"
+  class="create-form"
+>
+  <mat-dialog-content class="dialog-content">
+    <!-- TITLU FIELD -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Titlu</mat-label>
+      <input matInput formControlName="titlu" />
+      <mat-error *ngIf="form.get('titlu')?.hasError('required')">
+        Titlul este necesar
+      </mat-error>
+    </mat-form-field>
 
-      <!-- DESCRIPTION FIELD -->
-      <mat-form-field appearance="fill" class="full-width">
-        <mat-label>Description</mat-label>
-        <textarea
-          matInput
-          formControlName="description"
-          rows="4"
-        ></textarea>
-        <mat-error *ngIf="form.get('description')?.hasError('required')">
-          Description is required
-        </mat-error>
-      </mat-form-field>
-
-      <!-- IMAGE UPLOAD -->
-      <div class="file-input">
-        <button mat-stroked-button color="primary" type="button">
-          <mat-icon>upload</mat-icon>
-          <span>Select Image</span>
-          <input
-            type="file"
-            (change)="onFileChange($event)"
-            accept="image/*"
-            hidden
-          />
-        </button>
-        <span class="file-name" *ngIf="form.get('image')?.value as file">
-          {{ file.name }}
-        </span>
-      </div>
-    </mat-dialog-content>
-
-    <mat-dialog-actions align="end">
-      <button mat-button type="button" (click)="onCancel()">Cancel</button>
-      <button
-        mat-raised-button
-        color="accent"
-        type="submit"
-        [disabled]="form.invalid"
+    <!-- DROPDOWN: CATEGORIE -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Categorie</mat-label>
+      <mat-select
+        formControlName="categorie"
+        [disabled]="isLoadingCategories"
       >
-        Create
+        <mat-option *ngFor="let c of categories" [value]="c">{{ c }}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('categorie')?.hasError('required')">
+        Categorie este obligatorie
+      </mat-error>
+    </mat-form-field>
+
+    <!-- DROPDOWN: SUBCATEGORIE -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Subcategorie</mat-label>
+      <mat-select
+        formControlName="subcategorie"
+        [disabled]="
+          isLoadingSubcategories ||
+          !form.get('categorie')!.value
+        "
+      >
+        <mat-option *ngFor="let s of subcategories" [value]="s">{{ s }}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('subcategorie')?.hasError('required')">
+        Subcategorie este obligatorie
+      </mat-error>
+    </mat-form-field>
+
+    <!-- DESCRIERE FIELD -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Descriere</mat-label>
+      <textarea
+        matInput
+        formControlName="descriere"
+        rows="4"
+      ></textarea>
+      <mat-error *ngIf="form.get('descriere')?.hasError('required')">
+        Descrierea este obligatorie.
+      </mat-error>
+    </mat-form-field>
+
+    <!-- IMAGE (URL_POZA) UPLOAD -->
+    <div class="file-input">
+      <button mat-stroked-button color="primary" type="button">
+        <mat-icon>upload</mat-icon>
+        <span>Select Image</span>
+        <input
+          type="file"
+          (change)="onFileChange($event)"
+          accept="image/*"
+          hidden
+        />
       </button>
-    </mat-dialog-actions>
-  </form>
+      <!-- Now referencing form.get('url_poza') instead of 'image' -->
+      <span class="file-name" *ngIf="form.get('url_poza')?.value as file">
+        {{ file.name }}
+      </span>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()">Cancel</button>
+    <button
+      mat-raised-button
+      color="accent"
+      type="submit"
+      [disabled]="form.invalid || isCreating"
+    >
+      Create
+    </button>
+  </mat-dialog-actions>
+</form>

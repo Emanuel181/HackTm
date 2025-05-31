@@ -11,4 +11,8 @@
     <button (click)="onLightPresetClick('dusk')" [class.active]="currentPreset === 'dusk'">🌇</button>
     <button (click)="onLightPresetClick('night')" [class.active]="currentPreset === 'night'">🌙</button>
   </div>
+
+   <div class="light-switcher-bottom">
+    <button class="go-back-button" (click)="openCreateDialog()"> <mat-icon>add</mat-icon> Creaza Sesizare</button>
+   </div>
 </div>

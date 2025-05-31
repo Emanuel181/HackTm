@@ -51,7 +51,7 @@ interface Sesizare {
   downvotes: number;
   comments: string[];
   cartier: string;
-  interactions: any;  // adjust if you know its precise shape
+  interactions: any; 
 }
 
 @Component({
@@ -65,10 +65,9 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
   map!: mapboxgl.Map;
   popup?: mapboxgl.Popup;
 
-  // Holds the regionName passed in via ?regionName=…
+
   private regionName: string | null = null;
 
-  // ───> Keep track of which lightPreset is active. Default to "day".
   public currentPreset: 'day' | 'dusk' | 'dawn' | 'night' = 'dawn';
 
   constructor(private activatedRoute: ActivatedRoute, private http: HttpClient, private matDialog: MatDialog) {}
@@ -91,28 +90,10 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       antialias: true
     });
 
-    // ─────────────────────────────────────────────────────────────────
-    // A) Whenever the style is (re)loaded, re-apply our chosen lightPreset.
-    //    In practice, “style.load” fires after the initial load too, so this
-    //    will set Standard → “day” by default, then switch instantly if user changes.
-    // ─────────────────────────────────────────────────────────────────
-    this.map.on('style.load', () => {
-      // If you haven’t loaded any style or if Standard has just reloaded,
-      // set the basemap’s lightPreset to whatever we have in currentPreset.
-      (this.map as any).setConfigProperty('basemap', 'lightPreset', this.currentPreset);
-      // Note: In Mapbox GL JS v3+, setConfigProperty comes from the Style Import API.
-      // “basemap” refers to the imported Standard style within your style JSON.
+      this.map.on('style.load', () => {
+        (this.map as any).setConfigProperty('basemap', 'lightPreset', this.currentPreset);
     });
 
-    // ─────────────────────────────────────────────────────────────────
-    // B) Run once when the map first finishes loading all of its built-in layers.
-    //    Here we:
-    //    1. Add terrain.
-    //    2. Add (optional) custom 3D‐building layer on top of Standard’s own.
-    //    3. Filter out “Zona A” / “Zone B”.
-    //    4. Add our zones as a GeoJSON source.
-    //    5. Show either a single region or all regions.
-    // ─────────────────────────────────────────────────────────────────
     this.map.on('load', () => {
       // 1) Terrain and exaggeration:
       this.map.addSource('mapbox-dem', {
@@ -123,7 +104,6 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       });
       this.map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
 
-      // Add atmospheric fog
       this.map.setFog({
         range: [0.5, 10],
         color: 'rgba(240, 240, 255, 0.4)',
@@ -131,7 +111,6 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
         'star-intensity': 0.1
       });
 
-// Add sky layer
       this.map.addLayer({
         id: 'sky',
         type: 'sky',
@@ -152,6 +131,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
         const nameLower = String(props['name']).toLowerCase();
         return nameLower !== 'zona a' && nameLower !== 'zone b';
       });
+
       const cleanedGeoJson: FeatureCollection<Polygon | MultiPolygon, ZoneProperties> = {
         type: 'FeatureCollection',
         features: cleanedFeatures.map((f, index) => ({
@@ -188,8 +168,24 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       })
         .setLngLat([21.23771, 45.75616])
         .addTo(this.map);
-   if (this.regionName) {
-        this.fetchAndDrawRedMarkers(this.regionName);
+        if (this.regionName) {
+          this.fetchAndDrawRedMarkers(this.regionName);
+        }
+    });
+  }
+
+  openCreateDialog(): void {
+    const currentLat = 21.23771; 
+    const currentLng = 45.75616;
+    console.log('🔍 openCreateDialog() was invoked');
+
+    this.matDialog.open(CreationDialogComponent, {
+      width: '650px',
+      data: 
+      {
+        mode: 'create',
+        lat: currentLat,
+        lng: currentLng,
       }
     });
   }
@@ -233,9 +229,19 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
 
         markerElement.addEventListener('click', (e) => {
           e.stopPropagation();
+          console.log('🔍 Marker clicked, item =', item);
+
           this.matDialog.open(CreationDialogComponent, {
             width: '650px',
-            data: item
+            data: 
+            {
+              mode: 'view',
+              item: item
+            }
+          }).afterClosed().subscribe((result) => {
+            if (result?.created) {
+              window.location.reload();
+            }
           });
         });
       });
