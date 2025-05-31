@@ -77,6 +77,29 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
         }
       });
     });
+
+    this.map.on('pointermove', (evt) => {
+      let hoveredFeature: Feature | null = null;
+    
+      this.map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
+        if (layer === this.complaintLayer) {
+          hoveredFeature = feature as Feature;
+        }
+      });
+    
+      // Set pointer cursor if hovering a feature
+      this.map.getTargetElement().style.cursor = hoveredFeature ? 'pointer' : '';
+    
+      // Reset all styles first
+      this.complaintSource.getFeatures().forEach((f) => {
+        f.setStyle(this.defaultComplaintStyle);
+      });
+    
+      // Apply hover style only to hovered feature
+      if (hoveredFeature) {
+        (hoveredFeature as Feature<Point>).setStyle(this.hoverComplaintStyle);
+      }
+    }); 
   }
 
   ngOnDestroy(): void {
@@ -403,21 +426,27 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
         complaintData: item
       });
 
-      feature.setStyle(
-        new Style({
-          image: new CircleStyle({
-            radius: 5,
-            fill: new Fill({ color: 'rgba(255, 0, 0, 0.8)' }),
-            stroke: new Stroke({ color: '#fff', width: 1 }),
-          }),
-        })
-      );
+    feature.setStyle(this.defaultComplaintStyle);
 
-      // 6) Add it to the complaintSource so it appears on the map
-      this.complaintSource.addFeature(feature);
-    }
+    // 6) Add it to the complaintSource so it appears on the map
+    this.complaintSource.addFeature(feature);
   }
+}
 
+private defaultComplaintStyle = new Style({
+  image: new CircleStyle({
+    radius: 5,
+    fill: new Fill({ color: 'rgba(255, 0, 0, 0.8)' }),
+    stroke: new Stroke({ color: '#fff', width: 1 }),
+  }),
+});
+
+private hoverComplaintStyle = new Style({
+  image: new CircleStyle({
+    radius: 20,
+    fill: new Fill({ color: 'rgba(255, 100, 100, 1)' }), // lighter red
+  }),
+});
 
   /**
    * Utility: Convert “#RRGGBB” → “rgba(r,g,b,a)”
