@@ -2,7 +2,7 @@ import {
   Component,
   AfterViewInit,
   OnDestroy,
-  ElementRef,
+  ElementRef,y
   ViewChild
 } from '@angular/core';
 import mapboxgl from 'mapbox-gl';

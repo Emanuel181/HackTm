@@ -1,7 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AuthComponent } from '../auth/auth.component';
-import { CommonModule } from '@angular/common'; // Optional if needed
-import { FormsModule } from '@angular/forms'; // Needed if your component uses [(ngModel)]
+import { AuthComponent } from './auth.component';
 
 describe('AuthComponent', () => {
   let component: AuthComponent;
@@ -9,8 +7,7 @@ describe('AuthComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AuthComponent],
-      imports: [FormsModule] // Add FormsModule if using ngModel
+      imports: [AuthComponent]  // ✅ For standalone components
     }).compileComponents();
 
     fixture = TestBed.createComponent(AuthComponent);
