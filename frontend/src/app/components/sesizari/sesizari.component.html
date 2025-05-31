@@ -27,11 +27,15 @@
             {{ item.titlu }}
           </div>
           <div class="card-status">
-            <mat-chip
-              [color]="item.status === 'active' ? 'primary' : 'warn'"
-              selected
-            >
-              {{ item.status | titlecase }}
+            <mat-chip disabled
+                [ngClass]="{
+                    'status-chip--active': item.status === 'active',
+                    'status-chip--removed': item.status === 'removed',
+                    'status-chip--warning': item.status === 'warning' || item.status === 'pending'
+                }"
+                selected
+                >
+                {{ item.status | titlecase }}
             </mat-chip>
           </div>
         </div>
@@ -49,16 +53,16 @@
         </div>
 
         <div class="card-footer">
-            <button mat-button [ngClass]="{'disable-click': 'disabled'}">
+            <button mat-button [ngClass]="{'disable-click-up': 'disabled'}">
                 <mat-icon aria-hidden="false" aria-label="Upvotes">
-                thumb_up
+                    arrow_upward
                 </mat-icon>
                 {{ item.upvotes }}
             </button>
           
-            <button mat-button [ngClass]="{'disable-click': 'disabled'}">
+            <button mat-button [ngClass]="{'disable-click-down': 'disabled'}">
                 <mat-icon aria-hidden="false" aria-label="Downvotes">
-                thumb_down
+                    arrow_downward
                 </mat-icon>
                 {{ item.downvotes }}
             </button>
