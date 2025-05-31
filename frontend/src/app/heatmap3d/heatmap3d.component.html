@@ -1,0 +1,40 @@
+<div class="map-container-wrapper">
+  <!-- This is where Mapbox GL will render -->
+  <div #mapContainer id="map"></div>
+
+  <!-- “Back” button in the top‐right -->
+  <div class="light-switcher-right">
+    <button class="go-back-button" routerLink="/home">
+      <mat-icon>arrow_left</mat-icon>
+      Back
+    </button>
+  </div>
+
+  <!-- Four light‐preset buttons in the top‐left -->
+  <div class="light-switcher">
+    <button
+      (click)="onLightPresetClick('day')"
+      [class.active]="currentPreset === 'day'"
+    >
+      🌞
+    </button>
+    <button
+      (click)="onLightPresetClick('dawn')"
+      [class.active]="currentPreset === 'dawn'"
+    >
+      🌅
+    </button>
+    <button
+      (click)="onLightPresetClick('dusk')"
+      [class.active]="currentPreset === 'dusk'"
+    >
+      🌇
+    </button>
+    <button
+      (click)="onLightPresetClick('night')"
+      [class.active]="currentPreset === 'night'"
+    >
+      🌙
+    </button>
+  </div>
+</div>
