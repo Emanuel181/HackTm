@@ -40,7 +40,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
   private regionName: string | null = null;
 
   // ───> Keep track of which lightPreset is active. Default to "day".
-  public currentPreset: 'day' | 'dusk' | 'dawn' | 'night' = 'day';
+  public currentPreset: 'day' | 'dusk' | 'dawn' | 'night' = 'dawn';
 
   constructor(private activatedRoute: ActivatedRoute) {}
 
@@ -93,6 +93,26 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
         maxzoom: 14
       });
       this.map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+      // Add atmospheric fog
+      this.map.setFog({
+        range: [0.5, 10],
+        color: 'rgba(240, 240, 255, 0.4)',
+        'horizon-blend': 0.3,
+        'star-intensity': 0.1
+      });
+
+// Add sky layer
+      this.map.addLayer({
+        id: 'sky',
+        type: 'sky',
+        paint: {
+          'sky-type': 'atmosphere',
+          'sky-atmosphere-sun': [0.0, 0.0],
+          'sky-atmosphere-sun-intensity': 15
+        }
+      });
+
 
       // 3) FILTER OUT “Zona A” and “Zone B” from your neighborhoodsGeoJson:
       const cleanedFeatures = (neighborhoodsGeoJson.features as any[]).filter((f) => {
@@ -192,21 +212,9 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
     id?: string | number;
   }) {
     if (!this.map) return;
-
-    // 1) Add a fill-extrusion layer for that single feature
-    this.map.addLayer({
-      id: 'selected-region-fill',
-      type: 'fill-extrusion',
-      source: 'timisoara-zones',
-      paint: {
-        // Bright, contrasting color (works in any lightPreset)
-        'fill-extrusion-color': '#FF5722',
-        'fill-extrusion-height': 30,
-        'fill-extrusion-base': 0,
-        'fill-extrusion-opacity': 0.8,
-        'fill-extrusion-emissive-strength': 0.5
-      }
-    });
+    const colorRamp = this.currentPreset === 'night'
+      ? ['#0D1B2A', '#1B263B', '#415A77', '#778DA9', '#E0E1DD']
+      : ['#2DC4B2', '#3BB3C3', '#669EC4', '#8B88B6', '#A2719B', '#AA5E79'];
 
     // 2) Add an outline (line) layer for that same polygon
     this.map.addLayer({
@@ -215,22 +223,32 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       source: 'timisoara-zones',
       paint: {
         'line-color': '#FFC107',
-        'line-width': 4
+        'line-width': 3,
+        'line-opacity': 1
       }
     });
 
+
     // 3) Compute bounding box & fit
     const bbox = this.getGeoJSONFeatureBBox(feature.geometry);
-    this.map.fitBounds(
-      [
-        [bbox.minLng, bbox.minLat],
-        [bbox.maxLng, bbox.maxLat]
-      ],
-      { padding: 40, duration: 1500 }
-    );
+    this.map.flyTo({
+      center: this.computeCentroid(this.extractLinearRing(feature.geometry)),
+      zoom: 16.5,           // Slightly less tight, more city context
+      pitch: 60,            // View from above, not too steep
+      bearing: -15,         // Gentle horizontal rotation
+      speed: 0.3,           // Slow for cinematic feel
+      curve: 3.2,           // Smoother arc trajectory
+      easing: (t) => t < 0.5
+        ? 4 * t * t * t     // Ease-in cubic
+        : 1 - Math.pow(-2 * t + 2, 3) / 2, // Ease-out cubic
+      essential: true
+    });
+
+
+
 
     // 4) Add hover interaction so user sees popup with name/description
-    this.addHoverInteraction('selected-region-fill');
+    this.addHoverInteraction('selected-region-outline');
   }
 
   /**
@@ -238,31 +256,9 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
    */
   private showAllRegions() {
     if (!this.map) return;
-
-    // 1) Add a fill-extrusion layer for all polygons
-    this.map.addLayer({
-      id: 'all-zones-fill',
-      type: 'fill-extrusion',
-      source: 'timisoara-zones',
-      paint: {
-        // Interpolated color by “intensity” if you have it; otherwise fallback to single hex
-        'fill-extrusion-color': [
-          'interpolate',
-          ['linear'],
-          ['coalesce', ['get', 'intensity'], 0],
-          0, '#2DC4B2',
-          1, '#3BB3C3',
-          2, '#669EC4',
-          3, '#8B88B6',
-          4, '#A2719B',
-          5, '#AA5E79'
-        ],
-        'fill-extrusion-height': 20,
-        'fill-extrusion-base': 0,
-        'fill-extrusion-opacity': 0.6,
-        'fill-extrusion-emissive-strength': 0.3
-      }
-    });
+    const colorRamp = this.currentPreset === 'night'
+      ? ['#0D1B2A', '#1B263B', '#415A77', '#778DA9', '#E0E1DD']
+      : ['#2DC4B2', '#3BB3C3', '#669EC4', '#8B88B6', '#A2719B', '#AA5E79'];
 
     // 2) Add a “hover outline” line layer
     this.map.addLayer({
@@ -303,7 +299,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
     );
 
     // 4) Add hover interaction for all polygons
-    this.addHoverInteraction('all-zones-fill');
+    this.addHoverInteraction('all-zones-outline');
   }
 
   /**
@@ -351,7 +347,13 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       }
       this.popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false })
         .setLngLat(center)
-        .setHTML(`<strong>${name}</strong><br><small>${description}</small>`)
+        .setHTML(`
+  <div class="popup-content">
+    <h4>${name}</h4>
+    <p>${description}</p>
+  </div>
+`)
+
         .addTo(this.map);
     });
 
@@ -461,7 +463,5 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       (this.map as any).setConfigProperty('basemap', 'lightPreset', preset);
     }
   }
-
-
 
 }

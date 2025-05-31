@@ -10,7 +10,7 @@
 }
 
 .card‐content‐no‐padding {
-  padding: 0;  
+  padding: 0;
 }
 
 .map‐wrapper {
@@ -42,5 +42,29 @@
 @media (max-width: 600px) {
   .map‐card {
     width: 90%;
+  }
+}
+.mapboxgl-popup-content {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.popup-content {
+  color: white;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-family: 'Segoe UI', sans-serif;
+
+  h4 {
+    margin: 0 0 4px;
+    font-size: 16px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: #ccc;
   }
 }
