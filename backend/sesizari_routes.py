@@ -14,6 +14,7 @@ location_model = api.model('Location', {
 
 # Full sesizare model
 sesizare_model = api.model('Sesizare', {
+    'id': fields.String(required=False, description='ID of the doc'),
     'titlu': fields.String(required=True, description='Title of the sesizare'),
     'descriere': fields.String(required=True, description='Detailed description'),
     'categorie': fields.String(required=True, description='Category (e.g. road, tree)'),
@@ -22,7 +23,9 @@ sesizare_model = api.model('Sesizare', {
     'url_poza': fields.String(required=False, description='URL to photo proof'),
     'status': fields.String(required=False, description='Status (e.g. active, resolved)'),
     'created_at': fields.String(required=False, description='Timestamp of creation'),
-    'id': fields.String(required=False, description='ID of the doc')
+    'upvotes': fields.Integer(required=False, description='Number of upvotes', default=0),
+    'downvotes': fields.Integer(required=False, description='Number of downvotes', default=0),
+    'comments': fields.List(fields.String, required=False, description='List of admin comments')
 })
 
 @api.route('/get_sesizari/all')
