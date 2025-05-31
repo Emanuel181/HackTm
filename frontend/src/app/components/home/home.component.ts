@@ -39,7 +39,7 @@ export class HomeComponent {
           const lat = item.locatie.lat;
           const lon = item.locatie.lng;
           // call the public method on the map to add a red dot
-          this.openLayersMap.addComplaints(lat, lon);
+          this.openLayersMap.addComplaints(this.data);
         }
       });
   }

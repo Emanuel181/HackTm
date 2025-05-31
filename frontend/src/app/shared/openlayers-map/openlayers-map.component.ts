@@ -28,6 +28,8 @@ import Style from 'ol/style/Style';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import CircleStyle from 'ol/style/Circle';
+import { CreationDialogComponent } from '../creation-dialog/creation-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-openlayers-map',
@@ -40,6 +42,8 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
   private view!: View;
   private complaintSource!: VectorSource;
   private complaintLayer!: VectorLayer;
+
+  constructor(private dialog: MatDialog) {}
 
   // ─────────────────────────────────────────────────────────────────
   // Inlined GeoJSON with an added “Timisoara” polygon (approximate bounding box)
@@ -1090,23 +1094,26 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
     this.initMap();
     this.centerOnUserLocation();
 
-     this.map.on('singleclick', (evt) => {
-      // Look for a feature in the complaintLayer at the clicked pixel
-      this.map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
-        // Only respond if it's one of our complaint features
-        if (layer === this.complaintLayer) {
-          // Get the feature’s geometry coordinate (in EPSG:3857)
-          const coord3857: number[] =
-            (feature.getGeometry() as Point).getCoordinates();
-          // Convert back to [lon, lat] in EPSG:4326
-          const [lon, lat] = toLonLat(coord3857);
+    this.map.on('singleclick', (evt) => {
+    // “find the first complaint‐layer feature under the pixel”:
+    const firstFeature = this.map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
+      if (layer === this.complaintLayer) {
+        // As soon as we return something truthy here, forEachFeatureAtPixel will stop iterating further.
+        return feature;
+      }
+      return undefined; // continue searching
+    });
 
-          // You can show them in a popup, or just console.log / alert
-          alert(`Clicked complaint at:\nLatitude: ${lat.toFixed(
-            6
-          )}\nLongitude: ${lon.toFixed(6)}`);
+      if (firstFeature) {
+        // Grab the stored data and open the dialog just once
+        const complaintItem = firstFeature.get('complaintData') as any;
+        if (complaintItem) {
+          this.dialog.open(CreationDialogComponent, {
+            width: '650px',
+            data: complaintItem
+          });
         }
-      });
+      }
     });
   }
 
@@ -1196,8 +1203,6 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
       name: 'You are here'
     });
 
-    console.log(`User location feature created at: ${coord3857}`);
-
     // 2. Style the feature as a small filled circle with a stroke
     userFeature.setStyle(
       new Style({
@@ -1226,20 +1231,18 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
     this.map.addLayer(userLocationLayer);
   }
 
-  public addComplaints(lat: number, lon: number): void {
-    console.log(`Adding complaint at lon: ${lon}, lat: ${lat}`);
-    // 1) Transform from lon/lat to Web Mercator
+public addComplaints(data: any[]): void {
+  for (const item of data) {
+    const lat = item.locatie.lat;
+    const lon = item.locatie.lng;
+
     const coord3857 = fromLonLat([lat, lon]);
 
-    console.log(`Transformed coordinates: ${coord3857}`);
-
-    // 2) Create a point feature
     const feature = new Feature({
       geometry: new Point(coord3857),
-      type: 'complaint',
+      complaintData: item
     });
 
-    // 3) Style it as a small red circle
     feature.setStyle(
       new Style({
         image: new CircleStyle({
@@ -1250,9 +1253,11 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
       })
     );
 
-    // 4) Add it to the complaintSource (so it appears on the map)
+    // 6) Add it to the complaintSource so it appears on the map
     this.complaintSource.addFeature(feature);
   }
+}
+
   /**
    * Utility: Convert “#RRGGBB” → “rgba(r,g,b,a)”
    */
