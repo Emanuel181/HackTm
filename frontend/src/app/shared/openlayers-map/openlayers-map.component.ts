@@ -19,7 +19,7 @@ import VectorSource from 'ol/source/Vector';
 
 import GeoJSON from 'ol/format/GeoJSON';
 
-import { fromLonLat } from 'ol/proj';
+import { fromLonLat, toLonLat } from 'ol/proj';
 
 import Stroke from 'ol/style/Stroke';
 import Fill from 'ol/style/Fill';
@@ -38,6 +38,8 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
   private map!: Map;
   private view!: View;
+  private complaintSource!: VectorSource;
+  private complaintLayer!: VectorLayer;
 
   // ─────────────────────────────────────────────────────────────────
   // Inlined GeoJSON with an added “Timisoara” polygon (approximate bounding box)
@@ -1087,6 +1089,25 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initMap();
     this.centerOnUserLocation();
+
+     this.map.on('singleclick', (evt) => {
+      // Look for a feature in the complaintLayer at the clicked pixel
+      this.map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
+        // Only respond if it's one of our complaint features
+        if (layer === this.complaintLayer) {
+          // Get the feature’s geometry coordinate (in EPSG:3857)
+          const coord3857: number[] =
+            (feature.getGeometry() as Point).getCoordinates();
+          // Convert back to [lon, lat] in EPSG:4326
+          const [lon, lat] = toLonLat(coord3857);
+
+          // You can show them in a popup, or just console.log / alert
+          alert(`Clicked complaint at:\nLatitude: ${lat.toFixed(
+            6
+          )}\nLongitude: ${lon.toFixed(6)}`);
+        }
+      });
+    });
   }
 
   ngOnDestroy(): void {
@@ -1095,27 +1116,35 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
     }
   }
 
-  private initMap(): void {
+   private initMap(): void {
     // 1. Base OSM tile layer
     const osmLayer = new TileLayer({
-      source: new OSM()
+      source: new OSM(),
     });
 
     // 2. View centered on Timișoara (we’ll fit to data later)
     this.view = new View({
       center: fromLonLat([21.23771, 45.75616]),
-      zoom: 13
+      zoom: 13,
     });
 
     // 3. Instantiate the map
     this.map = new Map({
       target: this.mapContainer.nativeElement,
       layers: [osmLayer],
-      view: this.view
+      view: this.view,
     });
 
-    // 4. Add inlined polygons (including the whole‐city rectangle)
+    // 4. Add inlined polygons (neighborhoods)
     this.addNeighborhoodsFromData();
+
+    // 5. Create an empty VectorSource + VectorLayer for “complaint” markers
+    this.complaintSource = new VectorSource({ features: [] });
+    this.complaintLayer = new VectorLayer({
+      source: this.complaintSource,
+      zIndex: 1000, // sit on top of polygons
+    });
+    this.map.addLayer(this.complaintLayer);
   }
 
    private centerOnUserLocation(): void {
@@ -1167,6 +1196,8 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
       name: 'You are here'
     });
 
+    console.log(`User location feature created at: ${coord3857}`);
+
     // 2. Style the feature as a small filled circle with a stroke
     userFeature.setStyle(
       new Style({
@@ -1189,11 +1220,38 @@ export class OpenlayersMapComponent implements OnInit, OnDestroy {
     });
     const userLocationLayer = new VectorLayer({
       source: userLocationSource,
-      zIndex: 999 // ensure it’s drawn above other layers
+      zIndex: 999
     });
 
-    // 4. Add it to the map
     this.map.addLayer(userLocationLayer);
+  }
+
+  public addComplaints(lat: number, lon: number): void {
+    console.log(`Adding complaint at lon: ${lon}, lat: ${lat}`);
+    // 1) Transform from lon/lat to Web Mercator
+    const coord3857 = fromLonLat([lat, lon]);
+
+    console.log(`Transformed coordinates: ${coord3857}`);
+
+    // 2) Create a point feature
+    const feature = new Feature({
+      geometry: new Point(coord3857),
+      type: 'complaint',
+    });
+
+    // 3) Style it as a small red circle
+    feature.setStyle(
+      new Style({
+        image: new CircleStyle({
+          radius: 5,
+          fill: new Fill({ color: 'rgba(255, 0, 0, 0.8)' }),
+          stroke: new Stroke({ color: '#fff', width: 1 }),
+        }),
+      })
+    );
+
+    // 4) Add it to the complaintSource (so it appears on the map)
+    this.complaintSource.addFeature(feature);
   }
   /**
    * Utility: Convert “#RRGGBB” → “rgba(r,g,b,a)”

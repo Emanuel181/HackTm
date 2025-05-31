@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { OpenlayersMapComponent } from "../../shared/openlayers-map/openlayers-map.component";
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -19,13 +19,28 @@ import { environment } from '../../../environments/environments';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
+ @ViewChild(OpenlayersMapComponent, { static: true })
+  openLayersMap!: OpenlayersMapComponent;
 
-  data: any;
+  data: any[] = [];
 
-  constructor(http: HttpClient) {
-    http.get('https://hacktm.onrender.com/api/get_sesizari/all').subscribe(data => {
-      this.data = data;
-      console.log(data);
-    });
+  constructor(private http: HttpClient) {}
+
+  ngAfterViewInit(): void {
+    // 2) Once the view (and thus the map) is initialized, fetch the data
+    this.http
+      .get<any[]>('https://hacktm.onrender.com/api/get_sesizari/all')
+      .subscribe((response) => {
+        this.data = response;
+
+        // 3) Iterate over each item and pass its longitude & latitude to the map
+        //    (Assuming each object is like { locatie: { lat: number, lng: number }, ... })
+        for (const item of this.data) {
+          const lat = item.locatie.lat;
+          const lon = item.locatie.lng;
+          // call the public method on the map to add a red dot
+          this.openLayersMap.addComplaints(lat, lon);
+        }
+      });
   }
 }
