@@ -1,6 +1,10 @@
 <div class="map-container-wrapper">
   <div #mapContainer id="map"></div>
 
+  <div class="light-switcher-right">
+    <button class="go-back-button" routerLink="/home"> <mat-icon>arrow_left</mat-icon> Back</button>
+  </div>
+
   <div class="light-switcher">
     <button (click)="onLightPresetClick('day')" [class.active]="currentPreset === 'day'">🌞</button>
     <button (click)="onLightPresetClick('dawn')" [class.active]="currentPreset === 'dawn'">🌅</button>

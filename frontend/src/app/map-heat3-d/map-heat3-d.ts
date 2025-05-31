@@ -15,7 +15,7 @@ import {
   MultiPolygon,
   GeoJsonProperties
 } from 'geojson';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 
@@ -25,6 +25,8 @@ import { environment } from '../../environments/environments';
 import { catchError, throwError } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { CreationDialogComponent } from '../shared/creation-dialog/creation-dialog.component';
+import { NavbarComponent } from "../shared/navbar/navbar.component";
+import { MatIcon } from '@angular/material/icon';
 
 interface ZoneProperties {
   name: string;
@@ -55,7 +57,8 @@ interface Sesizare {
 @Component({
   selector: 'app-map-heat3d',
   templateUrl: 'map-heat3-d.html',
-  styleUrls: ['map-heat3-d.scss']
+  styleUrls: ['map-heat3-d.scss'],
+  imports: [MatIcon, RouterLink]
 })
 export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
