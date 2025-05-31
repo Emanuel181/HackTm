@@ -29,7 +29,7 @@
                 "src/assets/**"
             ],
             "styles": [
-              "../node_modules/@angular/material/prebuilt-themes/azure-blue.css",
+              "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles.scss"
             ],
             "scripts": []
@@ -86,7 +86,7 @@
                "src/assets/**/*.geojson"
             ],
             "styles": [
-              "../node_modules/@angular/material/prebuilt-themes/azure-blue.css",
+              "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles.scss"
             ],
             "scripts": []
