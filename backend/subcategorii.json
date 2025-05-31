@@ -1,0 +1,98 @@
+{
+  "Animale": [
+    "Animale de companie",
+    "Animale de ferma",
+    "Animale fara stapan",
+    "Cadavre de Animale"
+  ],
+  "Apa si canalizare": [
+    "Capac de canalizare lipsa/deteriorat",
+    "Fantani",
+    "Inundatii"
+  ],
+  "Constructii si terenuri": [
+    "Cladire/Teren in paragina",
+    "Constructie care prezinta pericol",
+    "Constructie ilegala",
+    "Teren ocupat ilegal"
+  ],
+  "Garaje, coserit, cimitire si toalete publice": [
+    "Garaje, coserit, cimitire",
+    "Toalete publice"
+  ],
+  "Iluminat public": [
+    "Aparat de iluminat nefunctional",
+    "Bec nefunctional",
+    "Functionare a iluminatului stradal pe timp de zi",
+    "Nu functioneaza iluminatul stradal in zona",
+    "Probleme privind stalpii de iluminat",
+    "Probleme referitoare la cabluri"
+  ],
+  "Mediu, locuri de joaca si spatii verzi": [
+    "Alee murdară în parc",
+    "Cosmetizare/defrișare arbori",
+    "Exploatări ilegale ale vegetației forestiere",
+    "Loc de joacă/mobilier urban deteriorat",
+    "Plante alergene (ambrozie)",
+    "Poluare/disconfort olfactiv/fonic"
+  ],
+  "Ordine publica": [
+    "Agent comercial ambulant/neautorizat",
+    "Distrugere/furt",
+    "Nereguli privind acte/activități de comerț",
+    "Persoane fără adăpost/Cerșetorie",
+    "Tulburarea liniștii publice"
+  ],
+  "Organizare si functionare asociații de proprietari": [
+    "Neîndeplinire atribuții reprezentanți asociații de proprietari",
+    "Utilizare părți comune"
+  ],
+  "Piete agroalimentare": [
+    "Probleme privind piețele agroalimentare"
+  ],
+  "Probleme de integritate": [
+    "Avertizări în interes public privind încălcări ale legii"
+  ],
+  "Probleme de integritate referitoare la angajati": [
+    "Probleme privind angajații PMT"
+  ],
+  "Salubrizare, dezinsectie, deratizare si dezapezire": [
+    "Cosuri de gunoi lipsă/deteriorate",
+    "Deratizare/dezinsecție/dezinfecție",
+    "Deșeuri din construcții abandonate pe domeniul public",
+    "Deșeuri menajere abandonate pe domeniul public",
+    "Deșeuri vegetale",
+    "Drum înzăpezit/înghețat"
+  ],
+  "Santiere": [
+    "Probleme privind curățenia pe șantier",
+    "Probleme privind depozitarea materialelor"
+  ],
+  "Strazi si trotoare": [
+    "Groapă",
+    "Obiecte abandonate pe domeniul public",
+    "Trotuar/pistă de biciclete deteriorat(ă)"
+  ],
+  "Trafic rutier si semne de circulatie": [
+    "Parcare abuzivă/ilegală",
+    "Pistă de bicicletă/Stradă blocată",
+    "Semafor defect",
+    "Semn de circulație lipsă/deteriorat/poziționat greșit",
+    "Vehicul abandonat"
+  ],
+  "Transport in comun": [
+    "Biciclete Velo TM, trotinete",
+    "Taxi",
+    "Tramvai, Autobuz, Troleibuz"
+  ],
+  "Urbanism": [
+    "Construcție ridicată ilegal",
+    "Întârziere eliberare document",
+    "Nerespectare documentației de urbanism",
+    "Șantier în lucru fără panou de șantier"
+  ],
+  "Website si platforma sesizari": [
+    "Sugestii referitoare la platforma de sesizări",
+    "Sugestii referitoare la website-ul PMT"
+  ]
+}
