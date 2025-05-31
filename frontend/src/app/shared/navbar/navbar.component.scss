@@ -1,0 +1,11 @@
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+
+    h1 {
+        cursor: pointer;
+        &:hover {
+            color: #0D47A1;
+        }
+    }
+}
