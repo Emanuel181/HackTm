@@ -30,37 +30,6 @@ class GetAllSesizari(Resource):
         docs = db.collection('sesizari').stream()
         return [doc.to_dict() for doc in docs]
 
-@api.route('/get_sesizari/active')
-class GetActiveSesizari(Resource):
-    @api.marshal_list_with(sesizare_model)
-    def get(self):
-        docs = db.collection('sesizari').where('status', '==', 'active').stream()
-        return [doc.to_dict() for doc in docs]
-
-@api.route('/get_sesizari/categorie/<string:name>')
-class GetSesizariByCategory(Resource):
-    @api.marshal_list_with(sesizare_model)
-    def get(self, name):
-        docs = db.collection('sesizari').where('categorie', '==', name).stream()
-        return [doc.to_dict() for doc in docs]
-
-@api.route('/get_sesizari/user_id/<string:user_id>')
-class GetSesizariByUser(Resource):
-    @api.marshal_list_with(sesizare_model)
-    def get(self, user_id):
-        docs = db.collection('sesizari').where('user_id', '==', user_id).stream()
-        return [doc.to_dict() for doc in docs]
-
-@api.route('/get_sesizari/sesizari_id/<string:doc_id>')
-class GetSesizariById(Resource):
-    @api.marshal_with(sesizare_model)
-    def get(self, doc_id):
-        doc = db.collection('sesizari').document(doc_id).get()
-        if doc.exists:
-            return doc.to_dict()
-        else:
-            abort(404, f"Sesizare with ID {doc_id} not found.")
-
 @api.route('/create_sesizare')
 class CreateSesizare(Resource):
     @api.expect(sesizare_model)
