@@ -35,7 +35,7 @@
 
   <!-- Category Legend (Only visible when category heatmap is active) -->
   <div class="legend-container" *ngIf="showCategoryLegend">
-    <h4>📘 Problem Categories</h4>
+    <h4>📘 Categorii</h4>
     <div *ngFor="let entry of categoryColorEntries" class="legend-entry">
       <span class="legend-color" [style.background]="entry[1]"></span>
       <span class="legend-label">{{ entry[0] }}</span>

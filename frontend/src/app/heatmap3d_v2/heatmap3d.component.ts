@@ -113,7 +113,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
   public drawPoliceIsochrone(): void {
     const layersToRemove = ['zones-3d-heat', 'route-line-layer'];
     const sourcesToRemove = ['timisoara-zones', 'route-line'];
-    
+
     this.policeModeEnabled = true;
 
 
@@ -604,7 +604,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
         .setHTML(`
           <div class="popup-content">
             <h4>${name}</h4>
-            <p><strong>Problem Category:</strong> ${category}</p>
+            <p><strong>Categorii:</strong> ${category}</p>
           </div>
         `)
         .addTo(this.map);
