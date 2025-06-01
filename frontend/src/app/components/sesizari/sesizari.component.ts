@@ -126,10 +126,6 @@ export class SesizariComponent implements OnInit {
 
   submitComment(sesizareId: string) {
     const text = (this.commentText[sesizareId] || '').trim();
-    if (!text) {
-      alert('Comentariul nu poate fi gol.');
-      return;
-    }
 
     const url = `${environment.baseApiUrl}send_comment/${sesizareId}`;
     this.http.post<{ message: string }>(url, { comment: text }).subscribe({

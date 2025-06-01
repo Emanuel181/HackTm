@@ -73,6 +73,7 @@
               mat-stroked-button
               color="primary"
               class="submit-comment-btn"
+              [disabled]="!(commentText[item.id] && commentText[item.id].trim().length)"
               (click)="submitComment(item.id)"
             >
               Trimite comentariu
@@ -80,21 +81,24 @@
           </div>
           <div class="card-footer">
 
-            <button mat-button style="left: -65%" (click)="solveComplaint(item.id)" *ngIf="role === 'admin' && item.status !== 'solutionat'"> Solutioneaza Sesizarea</button>
+            <button mat-button (click)="solveComplaint(item.id)" *ngIf="role === 'admin' && item.status !== 'solutionat'"> Solutioneaza Sesizarea</button>
 
-            <button mat-button [ngClass]="{'disable-click-up': 'disabled'}">
-              <mat-icon aria-hidden="false" aria-label="Upvotes">
-                arrow_upward
-              </mat-icon>
-              {{ item.upvotes }}
-            </button>
-
-            <button mat-button [ngClass]="{'disable-click-down': 'disabled'}">
-              <mat-icon aria-hidden="false" aria-label="Downvotes">
-                arrow_downward
-              </mat-icon>
-              {{ item.downvotes }}
-            </button>
+            <div>
+                <button mat-button [ngClass]="{'disable-click-up': 'disabled'}">
+                    <mat-icon aria-hidden="false" aria-label="Upvotes">
+                      arrow_upward
+                    </mat-icon>
+                    {{ item.upvotes }}
+                  </button>
+      
+                  <button mat-button [ngClass]="{'disable-click-down': 'disabled'}">
+                    <mat-icon aria-hidden="false" aria-label="Downvotes">
+                      arrow_downward
+                    </mat-icon>
+                    {{ item.downvotes }}
+                  </button>
+            </div>
+            
           </div>
         </div>
 
