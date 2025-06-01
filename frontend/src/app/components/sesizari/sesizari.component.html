@@ -1,9 +1,13 @@
-<!-- src/app/sesizari/sesizari.component.html -->
+<div *ngIf="role === 'admin'" class="download-report-container">
+  <button mat-raised-button color="primary" (click)="downloadReport()">
+    <mat-icon>file_download</mat-icon>
+    Descarcă Raport Sesizari
+  </button>
+</div>
 
 <div class="cards-container">
   <mat-card *ngFor="let item of (role === 'admin' ? allData : userData)" class="sesizare-card">
     <div class="card-content">
-      <!-- LEFT COLUMN: Image (or placeholder) -->
       <div class="card-image-container">
         <img
           *ngIf="item.url_poza && item.url_poza.length; else noImage"

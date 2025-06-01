@@ -58,4 +58,28 @@ export class SesizariComponent implements OnInit {
       window.location.href = '/auth';
     }
   } 
+downloadReport(): void {
+    const pdfEndpoint = `https://hacktm.onrender.com/report/download`;
+
+    this.http
+      .get(pdfEndpoint, { responseType: 'blob' })
+      .subscribe({
+        next: (blob: Blob) => {
+          const url = window.URL.createObjectURL(blob);
+
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'raport_sesizari.pdf';
+          document.body.appendChild(a);
+          a.click();
+
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => {
+          console.error('Eroare la descărcarea raportului:', err);
+          alert('Nu s-a putut descărca raportul. Încearcă din nou.');
+        }
+      });
+  }
 }

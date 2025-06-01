@@ -1,28 +1,22 @@
-/* src/app/sesizari/sesizari.component.scss */
-
-/* ── Container for all cards ── */
 .cards-container {
   display: flex;
   flex-direction: column;
-  gap: 2rem;         /* space between cards */
+  gap: 2rem;
   margin: 2rem 0;
 }
 
-/* ── Each individual card ── */
 .sesizare-card {
   width: 80%;
-  margin: 0 auto;    /* center it horizontally on larger screens */
+  margin: 0 auto;
 }
 
-/* ── Main card content is a 2-column flex ── */
 .card-content {
   display: flex;
   flex-direction: row;
 }
 
-/* ── Left: fixed‐width image container ── */
 .card-image-container {
-  flex: 0 0 240px;           /* fixed width for the image column */
+  flex: 0 0 240px;    
   background-color: #005cbb;
   border-right: 1px solid #e0e0e0;
   display: flex;
@@ -175,4 +169,28 @@
   .card-image-container {
     flex: 0 0 100px;
   }
+}
+
+.download-report-container {
+  display: flex;
+  justify-content: center; 
+  margin: 24px 0;  
+}
+
+.download-report-container button {
+  padding: 12px 28px;
+  font-size: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); 
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.download-report-container button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.download-report-container mat-icon {
+  margin-right: 8px;
+  font-size: 20px;
 }
