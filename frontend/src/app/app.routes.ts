@@ -8,6 +8,7 @@ import { MapHeat3DComponent } from './map-heat3-d/map-heat3-d';
 import {AuthComponent} from './components/auth/auth.component';
 import { AuthGuard } from './components/auth/auth.guard';
 import {TrafficMapComponent} from './traffic-map/traffic-map.component';
+import {PopulationMapComponent} from './density/density.component';
 
 export const routes: Routes = [
   {
@@ -15,6 +16,11 @@ export const routes: Routes = [
     redirectTo: 'home',
     pathMatch: 'full'
   },
+  {
+    path: 'population-map',
+    component: PopulationMapComponent
+  },
+
   {
     path: 'traffic-map',
     component: TrafficMapComponent

@@ -5,10 +5,10 @@
       <button mat-button routerLink="/home">Acasă</button>
       <button *ngIf="isLoggedIn" mat-button routerLink="/sesizari">Sesizări</button>
       <button mat-button routerLink="/map-heat3d">Zone Vizuale</button>
-      <button mat-button routerLink="/traffic-map">Harta Trafic</button> <!-- ✅ New -->
+      <button mat-button routerLink="/traffic-map">Harta Trafic</button>
+      <button mat-button routerLink="/population-map">Populație</button> <!-- ✅ New Button -->
       <button *ngIf="!isLoggedIn" mat-flat-button routerLink="/auth">Autentificare</button>
       <button *ngIf="isLoggedIn" mat-flat-button (click)="logout()">Delogare</button>
     </div>
   </div>
 </mat-toolbar>
-
