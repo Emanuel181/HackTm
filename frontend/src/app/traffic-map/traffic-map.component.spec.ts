@@ -21,3 +21,4 @@ describe('TrafficMapComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

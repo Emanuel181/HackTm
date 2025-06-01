@@ -41,8 +41,12 @@ export class TrafficMapComponent implements AfterViewInit, OnDestroy {
       container: this.mapContainer.nativeElement,
       style: 'mapbox://styles/mapbox/standard',
       center: [21.2272, 45.7489], // Timișoara
-      zoom: 12
+      zoom: 14,
+      pitch: 60,           // tilt the map (0–85)
+      bearing: -20         // optional: rotate the map
     });
+
+
 
     this.map.addControl(new mapboxgl.NavigationControl());
 
