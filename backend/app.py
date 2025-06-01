@@ -34,7 +34,7 @@ from heatmap_routes import api as heatmap_routes_ns
 app = Flask(__name__)
 
 # ✅ Allow only frontend running on localhost:3000
-CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app, resources={r"/api/*": {"origins": "*"}}, methods=['GET', 'POST', 'PUT', 'OPTIONS'], supports_credentials=True)
 
 # ✅ Initialize Flask-RESTX API
 api = Api(app, version="1.0", title="Sample API", description="A simple Flask-RESTX API")
