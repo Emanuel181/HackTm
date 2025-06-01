@@ -68,7 +68,12 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
   popup?: mapboxgl.Popup;
   private regionName: string | null = null;
   public currentHeatmap: 'category' | 'security' = 'category';
-  private readonly policeLocation: [number, number] = [21.2416237, 45.7587678]; // Exact coords from Google Maps
+  private readonly policeStations: [number, number][] = [
+    [21.2416237, 45.7587678],           // HQ
+    [21.207632, 45.764828],             // New 1
+    [21.209308, 45.750764],             // New 2
+    [21.238206, 45.747776]              // New 3
+  ];
   private fetchIsochrone(center: [number, number], minutes = 15) {
     const accessToken = 'pk.eyJ1IjoiZW1hMTIxIiwiYSI6ImNtYmMycms1djE3azcybHF1d3pvMzM2NHQifQ.1kkI3Uwn4zAER6PYWpMknQ';
     const url = `https://api.mapbox.com/isochrone/v1/mapbox/driving/${center[0]},${center[1]}?contours_minutes=5,10,15&polygons=true&access_token=${accessToken}`;
@@ -116,11 +121,9 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
 
     this.policeModeEnabled = true;
 
-
     layersToRemove.forEach(id => {
       if (this.map.getLayer(id)) this.map.removeLayer(id);
     });
-
     sourcesToRemove.forEach(id => {
       if (this.map.getSource(id)) this.map.removeSource(id);
     });
@@ -134,72 +137,59 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       if (el.classList.contains('remove-for-police')) el.remove();
     });
 
-    // ─────────────────────────────────────────────────────
-    // 2. Load isochrone coverage from Mapbox API
-    // ─────────────────────────────────────────────────────
-    const url = `https://api.mapbox.com/isochrone/v1/mapbox/driving/${this.policeLocation[0]},${this.policeLocation[1]}?contours_minutes=5,10,15&polygons=true&access_token=${mapboxgl.accessToken}`;
+    // For each police station
+    this.policeStations.forEach((station, index) => {
+      const url = `https://api.mapbox.com/isochrone/v1/mapbox/driving/${station[0]},${station[1]}?contours_minutes=5,10,15&polygons=true&access_token=${mapboxgl.accessToken}`;
 
-    this.http.get<any>(url).subscribe(data => {
-      // Source setup
-      if (this.map.getSource('police-isochrone')) {
-        (this.map.getSource('police-isochrone') as mapboxgl.GeoJSONSource).setData(data);
-      } else {
-        this.map.addSource('police-isochrone', {
-          type: 'geojson',
-          data
-        });
+      this.http.get<any>(url).subscribe(data => {
+        const sourceId = `police-isochrone-${index}`;
+        const layerId = `police-isochrone-layer-${index}`;
 
+        this.map.addSource(sourceId, { type: 'geojson', data });
         this.map.addLayer({
-          id: 'police-isochrone-layer',
+          id: layerId,
           type: 'fill',
-          source: 'police-isochrone',
+          source: sourceId,
           paint: {
             'fill-color': [
-              'match',
-              ['get', 'contour'],
+              'match', ['get', 'contour'],
               5, '#ffffb2',
               10, '#fecc5c',
               15, '#fd8d3c',
               '#f03b20'
             ],
-            'fill-opacity': 0.5
+            'fill-opacity': 0.4
           }
         });
-      }
 
-      // ─────────────────────────────────────────────────────
-      // 3. Add police icon (custom image or built-in)
-      // ─────────────────────────────────────────────────────
-      const policeFeature: FeatureCollection<Point> = {
-        type: 'FeatureCollection',
-        features: [
-          {
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: this.policeLocation
-            },
-            properties: {
-              title: 'Poliția Timișoara HQ'
-            }
+        // Add marker for the station
+        const feature: Feature<Point> = {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: station
+          },
+          properties: {
+            title: `Poliția #${index + 1}`
           }
-        ]
-      };
+        };
 
+        const sourceSymbolId = `police-symbol-${index}`;
+        const layerSymbolId = `police-symbol-layer-${index}`;
 
-      const addSymbolLayer = () => {
-        if (this.map.getSource('police-symbol')) {
-          (this.map.getSource('police-symbol') as mapboxgl.GeoJSONSource).setData(policeFeature);
-        } else {
-          this.map.addSource('police-symbol', {
-            type: 'geojson',
-            data: policeFeature
-          });
+        this.map.addSource(sourceSymbolId, {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [feature]
+          }
+        });
 
+        const addSymbolLayer = () => {
           this.map.addLayer({
-            id: 'police-symbol',
+            id: layerSymbolId,
             type: 'symbol',
-            source: 'police-symbol',
+            source: sourceSymbolId,
             layout: {
               'icon-image': 'police-icon',
               'icon-size': 0.07,
@@ -212,29 +202,24 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
               'text-color': '#0044cc'
             }
           });
+        };
+
+        if (!this.map.hasImage('police-icon')) {
+          this.map.loadImage('police-station.png', (err, image) => {
+            if (!err && image) {
+              this.map.addImage('police-icon', image);
+              addSymbolLayer();
+            }
+          });
+        } else {
+          addSymbolLayer();
         }
-      };
-
-      if (!this.map.hasImage('police-icon')) {
-        this.map.loadImage('police-station.png', (err, image) => {
-          if (!err && image) {
-            this.map.addImage('police-icon', image);
-            addSymbolLayer();
-          }
-        });
-      } else {
-        addSymbolLayer();
-      }
-
-      // ─────────────────────────────────────────────────────
-      // 4. Center the map to police HQ
-      // ─────────────────────────────────────────────────────
-      this.map.flyTo({ center: this.policeLocation, zoom: 16 });
+      });
     });
+
+    // Optionally fly to the first station
+    this.map.flyTo({ center: this.policeStations[0], zoom: 13 });
   }
-
-
-
 
 
 
