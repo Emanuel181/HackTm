@@ -6,6 +6,7 @@ from flask_cors import CORS  # ✅ CORS support
 from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, firestore
+from reportroutes import report_api
 
 # ✅ Load environment variables from .env
 load_dotenv()
@@ -32,6 +33,7 @@ from heatmap_routes import api as heatmap_routes_ns
 
 # ✅ Initialize Flask app
 app = Flask(__name__)
+app.register_blueprint(report_api)
 
 # ✅ Allow only frontend running on localhost:3000
 CORS(app, resources={r"/api/*": {"origins": "*"}}, methods=['GET', 'POST', 'PUT', 'OPTIONS'], supports_credentials=True)

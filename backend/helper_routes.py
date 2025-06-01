@@ -41,3 +41,4 @@ class GetSubcategories(Resource):
             abort(404, description="subcategorii.json not found")
         except json.JSONDecodeError:
             abort(500, description="Invalid JSON format in subcategorii.json")
+
