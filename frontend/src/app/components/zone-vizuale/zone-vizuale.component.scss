@@ -1,40 +1,148 @@
-/* src/app/map-heat3d/map-heat3d.component.scss */
-
-/* Wrapper flexes in case you add a toolbar or header */
-.map-heat3d-wrapper {
-  display: flex;
-  flex-direction: column;
+:host {
+  display: block;
   width: 100%;
   height: 100%;
-  margin: 0;
 }
 
-/* A small toolbar at the top for selecting light presets */
-.heat3d-toolbar {
-  background-color: #fafafa;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 8px 16px;
+.map-container-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+/* ─────────────────────────────────────────────── */
+/* Shared button styling (glassmorphic + smooth) */
+/* ─────────────────────────────────────────────── */
+button {
+  all: unset;
   display: flex;
   align-items: center;
-
-  label {
-    margin-right: 8px;
-    font-weight: 500;
-  }
-  select {
-    padding: 4px 8px;
-    font-size: 1rem;
-  }
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.15);
+  color: #111;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
 }
 
-/* The map itself should fill all the remaining space */
-.map-3d-container {
-  position: relative;
-  flex: 1;
+button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* Because Mapbox GL injects its own <canvas>, ensure height/width 100% */
-.map-3d-container > div {
-  width: 100%;
-  height: 100%;
+button:focus-visible {
+  outline: 2px solid rgba(0, 123, 255, 0.7);
+}
+
+/* Active state glow */
+button.active {
+  background: rgba(0, 123, 255, 0.15);
+  color: #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.35);
+}
+
+/* Adjust font/icon size for buttons with mat-icon */
+.go-back-button mat-icon {
+  font-size: 1.3rem;
+}
+
+/* ─────────────────────────────────────────────── */
+/* Top toolbar layout */
+/* ─────────────────────────────────────────────── */
+.toolbar-wrapper {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.back-button-wrapper,
+.heatmap-toggle-top-right {
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.heatmap-toggle-top-right button:not(:first-child) {
+  margin-left: 8px;
+}
+
+/* ─────────────────────────────────────────────── */
+/* Light Preset Switcher styling */
+/* ─────────────────────────────────────────────── */
+.light-switcher-top-center {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.light-switcher-top-center button {
+  font-size: 1.3rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: #222;
+}
+
+.light-switcher-top-center button.active {
+  background: rgba(0, 0, 0, 0.15);
+  color: #fff;
+}
+
+/* Optional: add dark mode support (auto) */
+@media (prefers-color-scheme: dark) {
+  button {
+    background: rgba(255, 255, 255, 0.08);
+    color: #eee;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  }
+
+  button:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  button.active {
+    background: rgba(0, 123, 255, 0.2);
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
+    color: #80caff;
+  }
+
+  .light-switcher-top-center {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .light-switcher-top-center button.active {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+  }
 }

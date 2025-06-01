@@ -1,0 +1,99 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.map-container-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────── */
+/* Toolbar (top-left + top-right) */
+/* ─────────────────────────────────────────────────────────────── */
+.toolbar-wrapper {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px;
+  z-index: 1000;
+}
+
+.back-button-wrapper,
+.heatmap-toggle-top-right {
+  display: flex;
+  align-items: center;
+}
+
+.go-back-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.go-back-button mat-icon {
+  font-size: 1.2rem;
+}
+
+.heatmap-toggle-top-right button {
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-left: 6px;
+  transition: background 0.2s ease;
+}
+
+.heatmap-toggle-top-right button.active {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* ─────────────────────────────────────────────────────────────── */
+/* Light Preset Switcher (top-center) */
+/* ─────────────────────────────────────────────────────────────── */
+.light-switcher-top-center {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 6px 10px;
+  border-radius: 6px;
+  z-index: 1000;
+}
+
+.light-switcher-top-center button {
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.light-switcher-top-center button.active {
+  background: rgba(0, 0, 0, 0.2);
+}
