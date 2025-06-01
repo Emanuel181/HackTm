@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
+import { FooterComponent } from "../../shared/footer/footer.component";
 
 
 @Component({
@@ -19,8 +20,9 @@ import { MatIconModule } from '@angular/material/icon';
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatChipsModule
-  ],
+    MatChipsModule,
+    FooterComponent
+],
   templateUrl: './sesizari.component.html',
   styleUrls: ['./sesizari.component.scss']
 })

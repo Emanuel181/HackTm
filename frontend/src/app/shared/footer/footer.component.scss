@@ -4,11 +4,17 @@
     height: 5rem;
     left: 0;
     bottom: 0;
-    background-color: black;
-    color: rgba(255, 255, 255, 0.571);
+    background-color: #005cbb;
+    color: white;
     justify-content: space-between;
     align-items: center;
     font-size: small;
+}
+
+.light-logo {
+    width: auto;
+    height: 2.5rem;
+    padding: 16px;
 }
 
 span {

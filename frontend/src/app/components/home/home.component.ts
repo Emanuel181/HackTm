@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { environment } from '../../../environments/environments';
+import { FooterComponent } from '../../shared/footer/footer.component';
 
 @Component({
   selector: 'app-home',
@@ -14,6 +15,7 @@ import { environment } from '../../../environments/environments';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
+    FooterComponent,
   HttpClientModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'

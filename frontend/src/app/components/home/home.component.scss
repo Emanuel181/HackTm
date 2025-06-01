@@ -42,12 +42,13 @@
   justify-content: center;
   flex-direction: row;
   gap: 2rem;
-  margin-top: 2rem;
 }
 
 .info-card {
   width: 25%;
   background-color: transparent;
+  text-align: center;
+  align-items: center;
 }
 
 .card‐content‐no‐padding {
@@ -64,6 +65,15 @@
 @media (max-width: 600px) {
   .map‐card {
     width: 90%;
+  }
+
+  .cards {
+    flex-direction: column;
+    align-items: center;
+
+    .info-card {
+      width: 90%;
+    }
   }
 }
 .mapboxgl-popup-content {
@@ -88,5 +98,27 @@
     margin: 0;
     font-size: 13px;
     color: #ccc;
+  }
+}
+
+mat-card-header {
+  font-size: large;
+  font-weight: 600;
+  padding-bottom: 1rem;
+}
+
+.hero-text {
+  display: flex;
+  align-items: center;
+  padding: 4rem;
+  font-size: 2rem;
+  font-weight: 600;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  gap: 1rem;
+
+  .subtitle {
+    font-size: 1rem;
   }
 }
