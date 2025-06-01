@@ -114,6 +114,7 @@ export class CreationDialogComponent implements OnInit {
     this.http.post(`${environment.baseApiUrl}/send_vote/upvote/${sesizare_id}/${user_id}`, null).subscribe({
       next: (res) => {
         this.snackBar.open('Upvote successful!', 'OK', { duration: 3000 });
+        this.ngOnInit();
       },
       error: (err) => { 
         console.error('Error upvoting:', err);
@@ -248,5 +249,15 @@ export class CreationDialogComponent implements OnInit {
 
   onClose() {
     this.dialogRef.close();
+  }
+
+  isValidImage(url: any): boolean {
+    return !!url && url !== 'string';
+  }
+  
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'no-img.svg';
+    target.classList.add('fallback-image');
   }
 }

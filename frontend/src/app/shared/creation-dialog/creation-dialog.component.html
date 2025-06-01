@@ -6,17 +6,12 @@
 <div *ngIf="data.mode == 'view'" class="view-container">
   <div class="view-image-container">
     <img
-      *ngIf="data?.item.url_poza; else noImage"
-      [src]="data.item.url_poza"
+      [src]="isValidImage(data.item.url_poza) ? data.item.url_poza : 'no-img.svg'"
+      [ngClass]="{ 'fallback-image': !isValidImage(data.item.url_poza) }"
       alt="Complaint Image"
       class="view-image"
+      (error)="onImageError($event)"
     />
-    <ng-template #noImage>
-      <div class="no-image-placeholder">
-        <mat-icon>image_not_supported</mat-icon>
-        <span>No Image</span>
-      </div>
-    </ng-template>
   </div>
 
   <!-- RIGHT: Textual details -->
