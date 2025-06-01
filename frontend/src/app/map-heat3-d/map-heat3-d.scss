@@ -6,9 +6,9 @@ app-navbar {
   top: 0;
   left: 0;
   right: 0;
-  height: 64px;       
-  z-index: 1000;       
-  background: #1976d2;  
+  height: 64px;
+  z-index: 1000;
+  background: #1976d2;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
@@ -17,12 +17,12 @@ app-navbar {
    =================================================================== */
 main.content {
   position: absolute;
-  top: 64px;  
+  top: 64px;
   left: 0;
   right: 0;
   bottom: 0;
   overflow: hidden;
-  background: #f5f5f5; 
+  background: #f5f5f5;
 }
 
 /* ===================================================================
@@ -45,7 +45,7 @@ main.content {
   position: absolute;
   inset: 0;        /* shorthand for top/right/bottom/left: 0 */
   z-index: 0;
-  background: #e0e0e0; 
+  background: #e0e0e0;
 }
 
 #map {
@@ -156,7 +156,7 @@ main.content {
    =================================================================== */
 /* “Go Back” is a smaller arrow icon + text */
 .light-switcher-right button {
-  font-size: 1rem;         
+  font-size: 1rem;
   padding: 6px 10px;
 }
 
@@ -191,3 +191,41 @@ main.content {
     bottom: 12px;
   }
 }
+
+.geocoder-bar {
+  position: relative;
+  width: 100%;
+
+  input {
+    width: 240px;
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    outline: none;
+  }
+
+  .autocomplete-suggestions {
+    position: absolute;
+    top: 38px;
+    width: 240px;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    z-index: 1000;
+    max-height: 180px;
+    overflow-y: auto;
+
+    div {
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    div:hover {
+      background: #f0f0f0;
+    }
+  }
+}
+
+

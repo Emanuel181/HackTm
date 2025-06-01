@@ -22,5 +22,48 @@
     <button (click)="onLightPresetClick('dawn')" [class.active]="currentPreset === 'dawn'">🌅</button>
     <button (click)="onLightPresetClick('dusk')" [class.active]="currentPreset === 'dusk'">🌇</button>
     <button (click)="onLightPresetClick('night')" [class.active]="currentPreset === 'night'">🌙</button>
+    <button (click)="drawPoliceIsochrone()">🚓 Police Coverage</button>
+    <button (click)="removePoliceCoverage()">🔁 Return to Heatmap</button>
+
   </div>
+
+  <div class="isochrone-legend">
+    <h4>ETA Legend (min)</h4>
+    <div><span style="background:#ffffb2"></span> 0–5</div>
+    <div><span style="background:#fecc5c"></span> 5–10</div>
+    <div><span style="background:#fd8d3c"></span> 10–15</div>
+    <div><span style="background:#f03b20"></span> 15+</div>
+  </div>
+
+  <!-- Category Legend (Only visible when category heatmap is active) -->
+  <div class="legend-container" *ngIf="showCategoryLegend">
+    <h4>📘 Problem Categories</h4>
+    <div *ngFor="let entry of categoryColorEntries" class="legend-entry">
+      <span class="legend-color" [style.background]="entry[1]"></span>
+      <span class="legend-label">{{ entry[0] }}</span>
+    </div>
+  </div>
+
+  <!-- Security Legend (Only visible when security heatmap is active) -->
+  <div class="heatmap-legend" *ngIf="showSecurityLegend">
+    <h4>Security Risk</h4>
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:#ffffff"></span>
+      <span class="legend-label">Low</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:#ffd700"></span>
+      <span class="legend-label">Moderate</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:#ff8c00"></span>
+      <span class="legend-label">High</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:#ff0000"></span>
+      <span class="legend-label">Critical</span>
+    </div>
+  </div>
+
+
 </div>

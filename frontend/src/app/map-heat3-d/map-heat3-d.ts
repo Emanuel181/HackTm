@@ -18,6 +18,7 @@ import {
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
+import { debounceTime, Subject } from 'rxjs';
 
 // ← Import your full neighborhoods GeoJSON (same one used by OpenLayers)
 import { neighborhoodsGeoJson } from '../data/neighbours';
@@ -27,6 +28,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreationDialogComponent } from '../shared/creation-dialog/creation-dialog.component';
 import { NavbarComponent } from "../shared/navbar/navbar.component";
 import { MatIcon } from '@angular/material/icon';
+import {NgForOf, NgIf} from '@angular/common';
 
 interface ZoneProperties {
   name: string;
@@ -51,26 +53,90 @@ interface Sesizare {
   downvotes: number;
   comments: string[];
   cartier: string;
-  interactions: any; 
+  interactions: any;
 }
 
 @Component({
   selector: 'app-map-heat3d',
   templateUrl: 'map-heat3-d.html',
   styleUrls: ['map-heat3-d.scss'],
-  imports: [MatIcon, RouterLink]
+  imports: [MatIcon, RouterLink, NgForOf, NgIf]
 })
 export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
   map!: mapboxgl.Map;
   popup?: mapboxgl.Popup;
+  searchAddress(query: string) {
+    if (!query) return;
+
+    const encodedQuery = encodeURIComponent(query);
+    const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${encodedQuery}&limit=1&country=ro&language=ro&access_token=${mapboxgl.accessToken}`;
+
+    this.http.get<any>(url).subscribe((response) => {
+      const feature = response?.features?.[0];
+      if (feature) {
+        const [lng, lat] = feature.geometry.coordinates;
+
+
+        new mapboxgl.Marker({ color: '#1E90FF' })
+          .setLngLat([lng, lat])
+          .setPopup(
+            new mapboxgl.Popup({ offset: 10 })
+              .setHTML(`<strong>Adresa:</strong><br>${feature.properties.full_address || feature.properties.name}`)
+          )
+          .addTo(this.map);
+      } else {
+        alert('Adresă necunoscută. Încearcă altă variantă.');
+      }
+    });
+  }
+
+
+  onSearchInput(query: string): void {
+    this.searchInputChanged$.next(query);
+  }
+
+  searchInputChanged$ = new Subject<string>();
+  suggestions: any[] = [];
+
+
+  fetchSuggestions(query: string) {
+    const encoded = encodeURIComponent(query);
+    const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${encoded}&limit=5&country=ro&language=ro&access_token=${mapboxgl.accessToken}`;
+    this.http.get<any>(url).subscribe(res => {
+      this.suggestions = res?.features || [];
+    });
+  }
+
+  selectSuggestion(feature: any) {
+    const [lng, lat] = feature.geometry.coordinates;
+    // this.flyToLocation(lng, lat, feature.properties.full_address || feature.properties.name);
+    this.suggestions = [];
+  }
+  searchMarker?: mapboxgl.Marker;
+
+  flyToLocation(lng: number, lat: number, label: string) {
+    if (this.searchMarker) this.searchMarker.remove();
+
+    this.map.flyTo({ center: [lng, lat], zoom: 17 });
+
+    this.searchMarker = new mapboxgl.Marker({ color: '#1E90FF' })
+      .setLngLat([lng, lat])
+      .setPopup(new mapboxgl.Popup().setHTML(`<strong>Adresă:</strong><br>${label}`))
+      .addTo(this.map);
+  }
+
+
 
 
   private regionName: string | null = null;
 
   public currentPreset: 'day' | 'dusk' | 'dawn' | 'night' = 'dawn';
 
-  constructor(private activatedRoute: ActivatedRoute, private http: HttpClient, private matDialog: MatDialog) {}
+  constructor(private activatedRoute: ActivatedRoute, private http: HttpClient, private matDialog: MatDialog) {this.searchInputChanged$
+    .pipe(debounceTime(300))
+    .subscribe((query) => this.fetchSuggestions(query));
+  }
 
   ngAfterViewInit(): void {
     // 1) Read “regionName” from the URL query parameters
@@ -171,17 +237,130 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
         if (this.regionName) {
           this.fetchAndDrawRedMarkers(this.regionName);
         }
+
+      this.map.on('click', (e) => {
+        const { lng, lat } = e.lngLat;
+
+        const url = `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${lng}&latitude=${lat}&country=ro&language=ro&access_token=${mapboxgl.accessToken}`;
+
+        this.http.get<any>(url).subscribe(res => {
+          const feature = res?.features?.[0];
+          const label = feature?.properties?.full_address || `${lng.toFixed(5)}, ${lat.toFixed(5)}`;
+          this.flyToLocation(lng, lat, label);
+        });
+      });
+      this.map.addLayer({
+        id: '3d-buildings',
+        source: 'composite',
+        'source-layer': 'building',
+        filter: ['==', 'extrude', 'true'],
+        type: 'fill-extrusion',
+        minzoom: 15,
+        paint: {
+          'fill-extrusion-color': [
+            'case',
+            ['boolean', ['feature-state', 'selected'], false],
+            '#FFD700', // highlighted: gold
+            '#aaa'     // normal: grey
+          ],
+          'fill-extrusion-height': ['get', 'height'],
+          'fill-extrusion-base': ['get', 'min_height'],
+          'fill-extrusion-opacity': 0.6
+        }
+      });
+      let previouslySelectedId: string | number | null = null;
+
+      this.map.on('click', '3d-buildings', (e) => {
+        const feature = e.features?.[0];
+        if (!feature || feature.id == null) return;
+
+        // Reset previous selection
+        if (previouslySelectedId !== null) {
+          this.map.setFeatureState(
+            { source: 'composite', sourceLayer: 'building', id: previouslySelectedId },
+            { selected: false }
+          );
+        }
+
+        // Set new selection
+        this.map.setFeatureState(
+          { source: 'composite', sourceLayer: 'building', id: feature.id },
+          { selected: true }
+        );
+
+        previouslySelectedId = feature.id;
+
+      });
+
+
+      this.map.on('click', '3d-buildings', (e) => {
+        const feature = e.features?.[0];
+        if (!feature || feature.id === undefined || feature.id === null) return;
+
+
+
+        this.map.setFeatureState(
+          {
+            source: 'composite',
+            sourceLayer: 'building', // ✅ camelCase version
+            id: feature.id as string | number
+          },
+          { selected: true }
+        );
+
+
+
+        const [lng, lat] = feature.geometry.type === 'Point'
+          ? feature.geometry.coordinates
+          : e.lngLat.toArray(); // fallback
+
+        const url = `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${lng}&latitude=${lat}&limit=1&language=ro&types=address&access_token=${mapboxgl.accessToken}`;
+
+        this.http.get<any>(url).subscribe((res) => {
+          const props = res?.features?.[0]?.properties;
+          const fullAddress = props?.full_address || props?.name || 'Adresă necunoscută';
+
+          new mapboxgl.Popup()
+            .setLngLat([lng, lat])
+            .setHTML(`<strong>Clădire:</strong><br>${fullAddress}`)
+            .addTo(this.map);
+        });
+      });
+
     });
+
+    this.map.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+      trackUserLocation: true,
+      showUserHeading: true
+    }));
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude, longitude } = position.coords;
+
+      new mapboxgl.Marker({ color: 'red' })
+        .setLngLat([longitude, latitude])
+        .setPopup(
+          new mapboxgl.Popup().setHTML(`<strong>Locația ta</strong><br>Lat: ${latitude.toFixed(5)}<br>Lng: ${longitude.toFixed(5)}`)
+        )
+        .addTo(this.map);
+
+      this.map.flyTo({ center: [longitude, latitude], zoom: 15 });
+    });
+
+
   }
 
   openCreateDialog(): void {
-    const currentLat = 21.23771; 
+    const currentLat = 21.23771;
     const currentLng = 45.75616;
     console.log('🔍 openCreateDialog() was invoked');
 
     this.matDialog.open(CreationDialogComponent, {
       width: '650px',
-      data: 
+      data:
       {
         mode: 'create',
         lat: currentLat,
@@ -233,7 +412,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
 
           this.matDialog.open(CreationDialogComponent, {
             width: '650px',
-            data: 
+            data:
             {
               mode: 'view',
               item: item
@@ -337,8 +516,6 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
         : 1 - Math.pow(-2 * t + 2, 3) / 2, // Ease-out cubic
       essential: true
     });
-
-
 
 
     // 4) Add hover interaction so user sees popup with name/description

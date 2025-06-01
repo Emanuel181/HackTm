@@ -9,11 +9,10 @@ import {
 } from '@angular/core';
 import mapboxgl from 'mapbox-gl';
 import {
-  FeatureCollection,
+
   Polygon,
   MultiPolygon,
   GeoJsonProperties,
-  Feature
 } from 'geojson';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -24,6 +23,8 @@ import { catchError, throwError } from 'rxjs';
 import { CreationDialogComponent } from '../shared/creation-dialog/creation-dialog.component';
 import { environment } from '../../environments/environments';
 import { MatIcon } from '@angular/material/icon';
+import { FeatureCollection, Feature, Point } from 'geojson';
+import {NgForOf, NgIf} from '@angular/common';
 
 interface ZoneProperties {
   name: string;
@@ -56,7 +57,9 @@ interface Sesizare {
   standalone: true,
   imports: [
     MatIcon,
-    RouterLink
+    RouterLink,
+    NgIf,
+    NgForOf
   ]
 })
 export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
@@ -65,6 +68,177 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
   popup?: mapboxgl.Popup;
   private regionName: string | null = null;
   public currentHeatmap: 'category' | 'security' = 'category';
+  private readonly policeLocation: [number, number] = [21.2416237, 45.7587678]; // Exact coords from Google Maps
+  private fetchIsochrone(center: [number, number], minutes = 15) {
+    const accessToken = 'pk.eyJ1IjoiZW1hMTIxIiwiYSI6ImNtYmMycms1djE3azcybHF1d3pvMzM2NHQifQ.1kkI3Uwn4zAER6PYWpMknQ';
+    const url = `https://api.mapbox.com/isochrone/v1/mapbox/driving/${center[0]},${center[1]}?contours_minutes=5,10,15&polygons=true&access_token=${accessToken}`;
+    return this.http.get(url);
+  }
+  public showCategoryLegend = true;
+  public showSecurityLegend = false;
+
+
+
+  public removePoliceCoverage(): void {
+    if (this.map.getLayer('police-isochrone-layer')) {
+      this.map.removeLayer('police-isochrone-layer');
+    }
+    if (this.map.getSource('police-isochrone')) {
+      this.map.removeSource('police-isochrone');
+    }
+    if (this.map.getLayer('police-symbol')) {
+      this.map.removeLayer('police-symbol');
+    }
+    if (this.map.getSource('police-symbol')) {
+      this.map.removeSource('police-symbol');
+    }
+    this.policeModeEnabled = false;
+
+
+
+    // Remove any police-related popups
+    if (this.popup) {
+      this.popup.remove();
+      this.popup = undefined;
+    }
+
+    // Restore heatmap and red markers
+    this.loadAndPaintZonesHeatmapByType(this.currentHeatmap);
+    if (this.regionName) {
+      this.fetchAndDrawRedMarkers(this.regionName);
+    }
+  }
+
+
+  public drawPoliceIsochrone(): void {
+    // ─────────────────────────────────────────────────────
+    // 1. Clear other visualizations (heatmaps, routes, popups, etc.)
+    // ─────────────────────────────────────────────────────
+    const layersToRemove = ['zones-3d-heat', 'route-line-layer'];
+    const sourcesToRemove = ['timisoara-zones', 'route-line'];
+    this.policeModeEnabled = true;
+
+
+    layersToRemove.forEach(id => {
+      if (this.map.getLayer(id)) this.map.removeLayer(id);
+    });
+
+    sourcesToRemove.forEach(id => {
+      if (this.map.getSource(id)) this.map.removeSource(id);
+    });
+
+    if (this.popup) {
+      this.popup.remove();
+      this.popup = undefined;
+    }
+
+    document.querySelectorAll('.mapboxgl-marker').forEach(el => {
+      if (el.classList.contains('remove-for-police')) el.remove();
+    });
+
+    // ─────────────────────────────────────────────────────
+    // 2. Load isochrone coverage from Mapbox API
+    // ─────────────────────────────────────────────────────
+    const url = `https://api.mapbox.com/isochrone/v1/mapbox/driving/${this.policeLocation[0]},${this.policeLocation[1]}?contours_minutes=5,10,15&polygons=true&access_token=${mapboxgl.accessToken}`;
+
+    this.http.get<any>(url).subscribe(data => {
+      // Source setup
+      if (this.map.getSource('police-isochrone')) {
+        (this.map.getSource('police-isochrone') as mapboxgl.GeoJSONSource).setData(data);
+      } else {
+        this.map.addSource('police-isochrone', {
+          type: 'geojson',
+          data
+        });
+
+        this.map.addLayer({
+          id: 'police-isochrone-layer',
+          type: 'fill',
+          source: 'police-isochrone',
+          paint: {
+            'fill-color': [
+              'match',
+              ['get', 'contour'],
+              5, '#ffffb2',
+              10, '#fecc5c',
+              15, '#fd8d3c',
+              '#f03b20'
+            ],
+            'fill-opacity': 0.5
+          }
+        });
+      }
+
+      // ─────────────────────────────────────────────────────
+      // 3. Add police icon (custom image or built-in)
+      // ─────────────────────────────────────────────────────
+      const policeFeature: FeatureCollection<Point> = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: this.policeLocation
+            },
+            properties: {
+              title: 'Poliția Timișoara HQ'
+            }
+          }
+        ]
+      };
+
+
+      const addSymbolLayer = () => {
+        if (this.map.getSource('police-symbol')) {
+          (this.map.getSource('police-symbol') as mapboxgl.GeoJSONSource).setData(policeFeature);
+        } else {
+          this.map.addSource('police-symbol', {
+            type: 'geojson',
+            data: policeFeature
+          });
+
+          this.map.addLayer({
+            id: 'police-symbol',
+            type: 'symbol',
+            source: 'police-symbol',
+            layout: {
+              'icon-image': 'police-icon',
+              'icon-size': 0.07,
+              'icon-anchor': 'bottom',
+              'text-field': ['get', 'title'],
+              'text-offset': [0, 1.2],
+              'text-anchor': 'top'
+            },
+            paint: {
+              'text-color': '#0044cc'
+            }
+          });
+        }
+      };
+
+      if (!this.map.hasImage('police-icon')) {
+        this.map.loadImage('police-station.png', (err, image) => {
+          if (!err && image) {
+            this.map.addImage('police-icon', image);
+            addSymbolLayer();
+          }
+        });
+      } else {
+        addSymbolLayer();
+      }
+
+      // ─────────────────────────────────────────────────────
+      // 4. Center the map to police HQ
+      // ─────────────────────────────────────────────────────
+      this.map.flyTo({ center: this.policeLocation, zoom: 16 });
+    });
+  }
+
+
+
+
+
 
   // Keep track of which lightPreset is active. Default to "day".
   public currentPreset: 'day' | 'dusk' | 'dawn' | 'night' = 'day';
@@ -94,11 +268,77 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
     "default":                              "#cccccc"
   };
   public switchHeatmap(type: 'category' | 'security'): void {
+    this.policeModeEnabled = false; // ← reset flag
     if (this.currentHeatmap !== type) {
       this.currentHeatmap = type;
+      this.showCategoryLegend = type === 'category';
+      this.showSecurityLegend = type === 'security';
       this.loadAndPaintZonesHeatmapByType(type);
     }
   }
+
+  public policeModeEnabled: boolean = false;
+
+
+  public categoryColorEntries = Object.entries(this.categoryColors).filter(([k]) => k !== 'default');
+
+  public securityColorEntries = [
+    { range: '0–0.25', color: '#ffffff' },
+    { range: '0.25–0.5', color: '#ffd700' },
+    { range: '0.5–1', color: '#ff8c00' },
+    { range: '1+', color: '#ff0000' }
+  ];
+
+
+  private drawRouteToHighRiskZone(destination: [number, number]): void {
+    const origin: [number, number] = [21.228, 45.748]; // Example: police HQ
+
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${origin[0]},${origin[1]};${destination[0]},${destination[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
+
+    this.http.get<any>(url).subscribe(response => {
+      const route = response.routes[0].geometry;
+
+
+      // Remove previous route if exists
+      if (this.map.getLayer('route-line-layer')) this.map.removeLayer('route-line-layer');
+      if (this.map.getSource('route-line')) this.map.removeSource('route-line');
+
+      this.map.addSource('route-line', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: route,
+          properties: {} // ✅ Required by strict typings
+        }
+      });
+
+
+
+      this.map.addLayer({
+        id: 'route-line-layer',
+        type: 'line',
+        source: 'route-line',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#ff0000',
+          'line-width': 4
+        }
+      });
+
+      const minutes = Math.round(response.routes[0].duration / 60);
+      if (this.policeModeEnabled) {
+        new mapboxgl.Popup()
+          .setLngLat(destination)
+          .setHTML(`<strong>ETA:</strong> ${minutes} min`)
+          .addTo(this.map);
+      }
+
+    });
+  }
+
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -109,6 +349,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     // 1) Read “regionName” from URL if provided
     this.regionName = this.activatedRoute.snapshot.queryParamMap.get('regionName');
+    this.policeModeEnabled = false;
 
     // 2) Initialize Mapbox GL
     mapboxgl.accessToken = 'pk.eyJ1IjoiZW1hMTIxIiwiYSI6ImNtYmMycms1djE3azcybHF1d3pvMzM2NHQifQ.1kkI3Uwn4zAER6PYWpMknQ';
@@ -116,7 +357,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       container: this.mapContainer.nativeElement,
       style: 'mapbox://styles/mapbox/standard',
       center: [21.23771, 45.75616], // Timișoara center
-      zoom: 14,                      // start a bit closer
+      zoom: 17,                      // start a bit closer
       pitch: 70,                     // tilt even more (was 60)
       bearing: 45,                   // rotate view to 45° (instead of -17.6)
       antialias: true
@@ -126,6 +367,8 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
     this.map.on('style.load', () => {
       (this.map as any).setConfigProperty('basemap', 'lightPreset', this.currentPreset);
     });
+
+
 
 
 
@@ -155,7 +398,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       type: 'raster-dem',
       url: 'mapbox://mapbox.terrain-rgb',
       tileSize: 512,
-      maxzoom: 14
+      maxzoom: 17
     });
     this.map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
 
@@ -287,6 +530,20 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
           this.map.setPaintProperty('zones-3d-heat', 'fill-extrusion-height', heightPaint);
         }
 
+        if (type === 'security' && this.policeModeEnabled) {
+          const topDanger = filteredGeoJson.features
+            .filter(f => f.properties?.intensity)
+            .sort((a, b) => b.properties!.intensity - a.properties!.intensity)[0];
+
+          if (topDanger) {
+            const coords = this.extractLinearRing(topDanger.geometry);
+            const center = this.computeCentroid(coords);
+            this.drawRouteToHighRiskZone(center);
+          }
+        }
+
+
+
         const bbox = this.getGeoJSONFeatureBBoxForCollection(filteredGeoJson);
         this.map.fitBounds(
           [
@@ -296,7 +553,7 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
           {
             padding: 40,
             duration: 1500,
-            maxZoom: 15
+            maxZoom: 17
           }
         );
 

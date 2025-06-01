@@ -1,3 +1,12 @@
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 0;
+}
+
+
 .nav-container {
     display: flex;
     justify-content: space-between;
@@ -23,3 +32,65 @@
     display: flex;
     gap: 0.2rem
 }
+.light-switcher-right {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+  z-index: 10;
+
+  .go-back-button {
+    background: white;
+    color: #333;
+    border-radius: 6px;
+    padding: 0.4rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    font-weight: 500;
+  }
+
+  .geocoder-bar {
+    position: relative;
+    width: 250px;
+
+    input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .autocomplete-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 5;
+      max-height: 200px;
+      overflow-y: auto;
+
+      div {
+        padding: 0.5rem 0.75rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: #f0f0f0;
+        }
+      }
+    }
+  }
+}
+

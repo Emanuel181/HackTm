@@ -7,12 +7,17 @@ import { HomeComponent } from './components/home/home.component';
 import { MapHeat3DComponent } from './map-heat3-d/map-heat3-d';
 import {AuthComponent} from './components/auth/auth.component';
 import { AuthGuard } from './components/auth/auth.guard';
+import {TrafficMapComponent} from './traffic-map/traffic-map.component';
 
 export const routes: Routes = [
   {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full'
+  },
+  {
+    path: 'traffic-map',
+    component: TrafficMapComponent
   },
   {
     path: 'home',
