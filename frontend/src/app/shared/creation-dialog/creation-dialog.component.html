@@ -50,12 +50,12 @@
 
     <div class="view-footer">
       <div class="vote-counts">
-        <button mat-button>
+         <button mat-button (click)="onUpvote()">
           <mat-icon aria-hidden="false" aria-label="Upvotes">arrow_upward</mat-icon>
           {{ data.item.upvotes }}
         </button>
         &nbsp;&nbsp;
-        <button mat-button>
+        <button mat-button (click)="onDownvote()">
           <mat-icon aria-hidden="false" aria-label="Downvotes">arrow_downward</mat-icon>
           {{ data.item.downvotes }}
         </button>

@@ -3,21 +3,21 @@
 
   <!-- Top toolbar: back button + heatmap switch -->
   <div class="toolbar-wrapper">
-    <div class="back-button-wrapper">
+    <div class="light-switcher-left">
       <button class="go-back-button" routerLink="/home">
         <mat-icon>arrow_left</mat-icon>
         Back
       </button>
     </div>
 
-    <div class="heatmap-toggle-top-right">
+    <div class="light-switcher-right">
       <button (click)="switchHeatmap('category')" [class.active]="currentHeatmap === 'category'">Category</button>
       <button (click)="switchHeatmap('security')" [class.active]="currentHeatmap === 'security'">Security</button>
     </div>
   </div>
 
   <!-- Light preset switcher -->
-  <div class="light-switcher-top-center">
+  <div class="light-switcher">
     <button (click)="onLightPresetClick('day')" [class.active]="currentPreset === 'day'">🌞</button>
     <button (click)="onLightPresetClick('dawn')" [class.active]="currentPreset === 'dawn'">🌅</button>
     <button (click)="onLightPresetClick('dusk')" [class.active]="currentPreset === 'dusk'">🌇</button>

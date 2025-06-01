@@ -1,229 +1,204 @@
-:host {
-  display: block;
-  width: 100%;
-  height: 100%;
+app-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;       
+  z-index: 1000;       
+  background: #1976d2;  
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-.map-container-wrapper {
+main.content {
+  position: absolute;
+  top: 64px;  
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  background: #f5f5f5; 
+}
+
+/* ===================================================================
+   3) Host (this component) fills its parent (which is main.content)
+   =================================================================== */
+:host {
+  display: block;
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+/* ===================================================================
+   4) Map container wrapper and #map itself
+   =================================================================== */
+.map-container-wrapper {
+  position: absolute;
+  inset: 0;        /* shorthand for top/right/bottom/left: 0 */
+  z-index: 0;
+  background: #e0e0e0; 
 }
 
 #map {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  z-index: 0;
 }
 
-/* ─────────────────────────────────────────────────────────────── */
-/* Toolbar (top-left + top-right) */
-/* ─────────────────────────────────────────────────────────────── */
-.toolbar-wrapper {
+/* ===================================================================
+   5) Base styles for all floating button groups (“go back”, presets, create)
+   =================================================================== */
+.button-group {
   position: absolute;
-  top: 10px;
-  left: 0;
-  right: 0;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 12px;
-  z-index: 1000;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 999;       /* sits above the map but below the navbar */
+  backdrop-filter: blur(4px); /* subtle glass effect */
 }
 
-.back-button-wrapper,
-.heatmap-toggle-top-right {
-  display: flex;
-  align-items: center;
+/* ===================================================================
+   6) “Go Back” button (top‐left)
+   =================================================================== */
+.light-switcher-right {
+  @extend .button-group;
+  top: 16px;
+  left: 85%;
+  padding: 4px;
 }
 
-.go-back-button {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.85);
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  cursor: pointer;
+.light-switcher-left {
+  @extend .button-group;
+  top: 16px;
+  left: 2.5%;
+  padding: 4px;
 }
 
-.go-back-button mat-icon {
-  font-size: 1.2rem;
-}
-
-.heatmap-toggle-top-right button {
-  background: rgba(255, 255, 255, 0.85);
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  margin-left: 6px;
-  transition: background 0.2s ease;
-}
-
-.heatmap-toggle-top-right button.active {
-  background: rgba(0, 0, 0, 0.15);
-}
-
-/* ─────────────────────────────────────────────────────────────── */
-/* Light Preset Switcher (top-center) */
-/* ─────────────────────────────────────────────────────────────── */
-.light-switcher-top-center {
-  position: absolute;
-  top: 10px;
+/* ===================================================================
+   7) Light‐preset toggles (top‐center)
+   =================================================================== */
+.light-switcher {
+  @extend .button-group;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 6px 10px;
-  border-radius: 6px;
-  z-index: 1000;
+  padding: 4px;
 }
 
-.light-switcher-top-center button {
+/* ===================================================================
+   8) “Crează Sesizare” button (bottom‐center or bottom‐right as you prefer)
+   Here we position it 16px above bottom and centered horizontally.
+   =================================================================== */
+.light-switcher-bottom {
+  @extend .button-group;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px;
+}
+
+/* If you’d rather put it bottom‐right instead of bottom‐center, use:
+.light-switcher-bottom {
+  @extend .button-group;
+  bottom: 16px;
+  right: 16px;
+  padding: 4px;
+}
+*/
+
+/* ===================================================================
+   9) Style all buttons inside these groups
+   =================================================================== */
+.button-group button {
   background: transparent;
   border: none;
-  font-size: 1.4rem;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 4px;
-  transition: background 0.2s ease;
-}
-
-.light-switcher-top-center button.active {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.police-btn {
-  background: linear-gradient(145deg, #3246a8, #5c6bc0);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
-  margin-left: 8px;
-  font-weight: 500;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.3s ease;
-
-  &:hover {
-    background: #3f51b5;
-    transform: scale(1.05);
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-}
-
-.isochrone-legend {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  background: rgba(255,255,255,0.9);
   padding: 8px 12px;
+  margin: 0 4px;
+  font-size: 1.25rem;
   border-radius: 6px;
-  font-size: 0.9rem;
-  box-shadow: 0 0 6px rgba(0,0,0,0.2);
-  z-index: 999;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
 
-  h4 {
-    margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Unselected state: darker text */
+  color: #444;
+}
+
+.button-group button:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.button-group button:active {
+  transform: translateY(0);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* ===================================================================
+   10) “Active” button state (for presets)
+   =================================================================== */
+.button-group button.active {
+  background: #1976d2;  /* Material‐blue 700 */
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* ===================================================================
+   11) Tweak sizes for specific groups
+   =================================================================== */
+/* “Go Back” is a smaller arrow icon + text */
+.light-switcher-right button {
+  font-size: 1rem;         
+  padding: 6px 10px;
+}
+
+.light-switcher-left button {
+  font-size: 1rem;         
+  padding: 6px 10px;
+}
+
+/* “Crează Sesizare” might use a medium icon + text */
+.light-switcher-bottom button {
+  font-size: 1rem;
+  padding: 6px 10px;
+}
+
+/* ===================================================================
+   12) Responsive adjustments (if viewport < 600px)
+   =================================================================== */
+@media (max-width: 600px) {
+  /* shrink preset toggles */
+  .light-switcher {
+    padding: 2px;
+  }
+  .light-switcher button {
+    padding: 6px 8px;
     font-size: 1rem;
+    margin: 0 2px;
   }
 
-  div {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 4px;
-
-    span {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border-radius: 3px;
-    }
-  }
-}
-.heatmap-legend {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  background: rgba(255, 255, 255, 0.85);
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  max-width: 220px;
-
-  h4 {
-    margin: 0 0 8px 0;
-    font-weight: 600;
-    font-size: 15px;
+  /* move “Go Back” in a bit */
+  .light-switcher-left {
+    top: 12px;
+    left: 12px;
   }
 
-  .legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 4px;
+  .light-switcher-right {
+    top: 12px;
+    left: 120px;
+  }
 
-    .legend-swatch {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-      margin-right: 8px;
-      border: 1px solid #999;
-    }
-
-    .legend-label {
-      flex: 1;
-    }
+  /* move “Create” button up a bit */
+  .light-switcher-bottom {
+    bottom: 12px;
   }
 }
-.legend-container {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  background: rgba(255, 255, 255, 0.85);
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  max-width: 220px;
-  z-index: 998;
-
-  h4 {
-    margin: 0 0 8px 0;
-    font-weight: 600;
-    font-size: 15px;
-  }
-
-  .legend-entry {
-    display: flex;
-    align-items: center;
-    margin-bottom: 4px;
-
-    .legend-color {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-      margin-right: 8px;
-      border: 1px solid #999;
-      flex-shrink: 0;
-    }
-
-    .legend-label {
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-}
-
-

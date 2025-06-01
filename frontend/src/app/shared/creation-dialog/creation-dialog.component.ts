@@ -108,6 +108,34 @@ export class CreationDialogComponent implements OnInit {
     }
   }
 
+  onUpvote(){
+    const sesizare_id = this.data.item.id;
+    const user_id =  this.data.item.user_id;
+    this.http.post(`${environment.baseApiUrl}/send_vote/upvote/${sesizare_id}/${user_id}`, null).subscribe({
+      next: (res) => {
+        this.snackBar.open('Upvote successful!', 'OK', { duration: 3000 });
+      },
+      error: (err) => { 
+        console.error('Error upvoting:', err);
+        this.snackBar.open('Error upvoting. Please try again later.', 'OK', { duration: 5000 });
+      }
+    });
+  }
+
+  onDownvote(){
+    const sesizare_id = this.data.item.id;
+    const user_id =  this.data.item.user_id
+    this.http.post(`${environment.baseApiUrl}/send_vote/downvote/${sesizare_id}/${user_id}`, null).subscribe({
+      next: (res) => {
+        this.snackBar.open('Downvote successful!', 'OK', { duration: 3000 });
+      },
+      error: (err) => { 
+        console.error('Error downvoting:', err);
+        this.snackBar.open('Error downvoting. Please try again later.', 'OK', { duration: 5000 });
+      }
+    });
+  }
+
   private fetchCategories(): void {
     this.isLoadingCategories = true;
     this.http

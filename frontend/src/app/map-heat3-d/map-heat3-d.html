@@ -3,22 +3,6 @@
 
   <div class="light-switcher-right">
     <button class="go-back-button" routerLink="/home"> <mat-icon>arrow_left</mat-icon> Back</button>
-    <div class="geocoder-bar">
-      <div class="geocoder-bar">
-        <input
-          type="text"
-          placeholder="Caută o adresă..."
-          (input)="onSearchInput(searchInput.value)"
-          #searchInput
-        />
-        <div class="autocomplete-suggestions" *ngIf="suggestions.length">
-          <div *ngFor="let suggestion of suggestions" (click)="selectSuggestion(suggestion)">
-            {{ suggestion.properties.full_address || suggestion.properties.name }}
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <div class="light-switcher">

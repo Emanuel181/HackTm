@@ -1,33 +1,24 @@
-/* ===================================================================
-   1) Navbar stays at the very top
-   =================================================================== */
 app-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 64px;
-  z-index: 1000;
-  background: #1976d2;
+  height: 64px;       
+  z-index: 1000;       
+  background: #1976d2;  
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* ===================================================================
-   2) Push main content below the navbar
-   =================================================================== */
 main.content {
   position: absolute;
-  top: 64px;
+  top: 64px;  
   left: 0;
   right: 0;
   bottom: 0;
   overflow: hidden;
-  background: #f5f5f5;
+  background: #f5f5f5; 
 }
 
-/* ===================================================================
-   3) Host (this component) fills its parent (which is main.content)
-   =================================================================== */
 :host {
   display: block;
   position: absolute;
@@ -38,14 +29,11 @@ main.content {
   overflow: hidden;
 }
 
-/* ===================================================================
-   4) Map container wrapper and #map itself
-   =================================================================== */
 .map-container-wrapper {
   position: absolute;
-  inset: 0;        /* shorthand for top/right/bottom/left: 0 */
+  inset: 0;       
   z-index: 0;
-  background: #e0e0e0;
+  background: #e0e0e0; 
 }
 
 #map {
@@ -56,32 +44,26 @@ main.content {
   z-index: 0;
 }
 
-/* ===================================================================
-   5) Base styles for all floating button groups (“go back”, presets, create)
-   =================================================================== */
+
 .button-group {
   position: absolute;
   display: flex;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  z-index: 999;       /* sits above the map but below the navbar */
-  backdrop-filter: blur(4px); /* subtle glass effect */
+  z-index: 999;   
+  backdrop-filter: blur(4px);
 }
 
-/* ===================================================================
-   6) “Go Back” button (top‐left)
-   =================================================================== */
+
 .light-switcher-right {
   @extend .button-group;
   top: 16px;
-  left: 16px;
+  left: 2.5%;
   padding: 4px;
 }
 
-/* ===================================================================
-   7) Light‐preset toggles (top‐center)
-   =================================================================== */
+
 .light-switcher {
   @extend .button-group;
   top: 16px;
@@ -90,10 +72,7 @@ main.content {
   padding: 4px;
 }
 
-/* ===================================================================
-   8) “Crează Sesizare” button (bottom‐center or bottom‐right as you prefer)
-   Here we position it 16px above bottom and centered horizontally.
-   =================================================================== */
+
 .light-switcher-bottom {
   @extend .button-group;
   bottom: 16px;
@@ -111,9 +90,6 @@ main.content {
 }
 */
 
-/* ===================================================================
-   9) Style all buttons inside these groups
-   =================================================================== */
 .button-group button {
   background: transparent;
   border: none;
@@ -142,33 +118,22 @@ main.content {
   background: rgba(0, 0, 0, 0.1);
 }
 
-/* ===================================================================
-   10) “Active” button state (for presets)
-   =================================================================== */
 .button-group button.active {
   background: #1976d2;  /* Material‐blue 700 */
   color: white;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-/* ===================================================================
-   11) Tweak sizes for specific groups
-   =================================================================== */
-/* “Go Back” is a smaller arrow icon + text */
 .light-switcher-right button {
-  font-size: 1rem;
+  font-size: 1rem;         
   padding: 6px 10px;
 }
 
-/* “Crează Sesizare” might use a medium icon + text */
 .light-switcher-bottom button {
   font-size: 1rem;
   padding: 6px 10px;
 }
 
-/* ===================================================================
-   12) Responsive adjustments (if viewport < 600px)
-   =================================================================== */
 @media (max-width: 600px) {
   /* shrink preset toggles */
   .light-switcher {
@@ -191,42 +156,3 @@ main.content {
     bottom: 12px;
   }
 }
-
-.geocoder-bar {
-  position: relative;
-  width: 100%;
-
-  input {
-    width: 240px;
-    padding: 6px 10px;
-    font-size: 14px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    outline: none;
-  }
-
-  .autocomplete-suggestions {
-    position: absolute;
-    top: 38px;
-    width: 240px;
-    background: white;
-    border: 1px solid #ccc;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    z-index: 1000;
-    max-height: 180px;
-    overflow-y: auto;
-
-    div {
-      padding: 8px 10px;
-      cursor: pointer;
-    }
-
-    div:hover {
-      background: #f0f0f0;
-    }
-  }
-}
-
-
-
