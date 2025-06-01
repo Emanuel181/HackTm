@@ -111,11 +111,9 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
 
 
   public drawPoliceIsochrone(): void {
-    // ─────────────────────────────────────────────────────
-    // 1. Clear other visualizations (heatmaps, routes, popups, etc.)
-    // ─────────────────────────────────────────────────────
     const layersToRemove = ['zones-3d-heat', 'route-line-layer'];
     const sourcesToRemove = ['timisoara-zones', 'route-line'];
+    
     this.policeModeEnabled = true;
 
 

@@ -6,25 +6,23 @@
     <div class="light-switcher-left">
       <button class="go-back-button" routerLink="/home">
         <mat-icon>arrow_left</mat-icon>
-        Back
+        Inapoi
       </button>
     </div>
 
-    <div class="light-switcher-right">
-      <button (click)="switchHeatmap('category')" [class.active]="currentHeatmap === 'category'">Category</button>
-      <button (click)="switchHeatmap('security')" [class.active]="currentHeatmap === 'security'">Security</button>
+    <div class="light-switcher">
+      <button (click)="switchHeatmap('category')" [class.active]="!policeModeEnabled && currentHeatmap === 'category'">Categorie</button>
+      <button (click)="switchHeatmap('security')" [class.active]="!policeModeEnabled && currentHeatmap === 'security'">Securitate</button>
+      <button (click)="drawPoliceIsochrone()" [class.active]="policeModeEnabled">Acoperirea Politiei</button>
     </div>
   </div>
 
   <!-- Light preset switcher -->
-  <div class="light-switcher">
+  <div class="light-switcher-right">
     <button (click)="onLightPresetClick('day')" [class.active]="currentPreset === 'day'">🌞</button>
     <button (click)="onLightPresetClick('dawn')" [class.active]="currentPreset === 'dawn'">🌅</button>
     <button (click)="onLightPresetClick('dusk')" [class.active]="currentPreset === 'dusk'">🌇</button>
     <button (click)="onLightPresetClick('night')" [class.active]="currentPreset === 'night'">🌙</button>
-    <button (click)="drawPoliceIsochrone()">🚓 Police Coverage</button>
-    <button (click)="removePoliceCoverage()">🔁 Return to Heatmap</button>
-
   </div>
 
   <div class="isochrone-legend">
