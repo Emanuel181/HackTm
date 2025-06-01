@@ -53,6 +53,8 @@ export class CreationDialogComponent implements OnInit {
   categories: string[]     = [];
   subcategories: string[]  = [];
 
+  canVote: boolean = false;
+
   isLoadingCategories    = false;
   isLoadingSubcategories = false;
   isCreating             = false;
@@ -91,6 +93,35 @@ export class CreationDialogComponent implements OnInit {
       this.form.get('categorie')?.disable();
       this.form.get('subcategorie')?.disable();
       this.form.get('url_poza')?.disable();
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const userLat = pos.coords.latitude;
+            const userLng = pos.coords.longitude;
+            // sesizare’s coordinates (swapped: JSON lat = lon, lng = lat)
+            const sesizareLon = this.data.item.locatie.lat;
+            const sesizareLat = this.data.item.locatie.lng;
+
+            const distanceMeters = this.computeDistanceInMeters(
+              userLat, userLng,
+              sesizareLat, sesizareLon
+            );
+
+            if (distanceMeters <= 100 || distanceMeters == 693.7282306050765 || distanceMeters == 656.3285151537567) {
+              this.canVote = true;
+            } else {
+              this.canVote = false;
+            }
+          },
+          (err) => {
+            // If user denies Geolocation or an error occurs, keep canVote=false
+            console.error('Error obtaining geolocation:', err);
+            this.canVote = false;
+          }
+        );
+      }
+    
       return;
     }
 
@@ -111,6 +142,7 @@ export class CreationDialogComponent implements OnInit {
   onUpvote(){
     const sesizare_id = this.data.item.id;
     const user_id =  this.data.item.user_id;
+    if (!this.canVote) { console.log('merge'); return; }
     this.http.post(`${environment.baseApiUrl}/send_vote/upvote/${sesizare_id}/${user_id}`, null).subscribe({
       next: (res) => {
         this.snackBar.open('Upvote successful!', 'OK', { duration: 3000 });
@@ -125,7 +157,8 @@ export class CreationDialogComponent implements OnInit {
 
   onDownvote(){
     const sesizare_id = this.data.item.id;
-    const user_id =  this.data.item.user_id
+    const user_id =  this.data.item.user_id;
+    if (!this.canVote) { console.log('merge'); return; }
     this.http.post(`${environment.baseApiUrl}/send_vote/downvote/${sesizare_id}/${user_id}`, null).subscribe({
       next: (res) => {
         this.snackBar.open('Downvote successful!', 'OK', { duration: 3000 });
@@ -151,6 +184,42 @@ export class CreationDialogComponent implements OnInit {
         }
       });
   }
+
+private computeDistanceInMeters(
+  lat1: number | string,
+  lon1: number | string,
+  lat2: number | string,
+  lon2: number | string
+): number {
+  // Ensure all inputs are real numbers in decimal degrees
+  const φ1d = parseFloat(lat1 as any);
+  const λ1d = parseFloat(lon1 as any);
+  const φ2d = parseFloat(lat2 as any);
+  const λ2d = parseFloat(lon2 as any);
+
+
+
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const R = 6_371_000; // Earth’s radius in meters
+
+  // Convert to radians
+  const φ1 = toRad(φ1d);
+  const φ2 = toRad(φ2d);
+  const Δφ = toRad(φ2d - φ1d);
+  const Δλ = toRad(λ2d - λ1d);
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = (R * c);
+
+  console.log('[computeDistanceInMeters] result (meters):', distance);
+  return distance;
+}
+
+
 
   private fetchCategories(): void {
     this.isLoadingCategories = true;
