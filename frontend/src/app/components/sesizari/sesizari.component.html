@@ -6,72 +6,101 @@
 </div>
 
 <div class="container">
-    <div class="cards-container">
+  <div class="cards-container">
     <mat-card *ngFor="let item of (role === 'admin' ? allData : userData)" class="sesizare-card">
-        <div class="card-content">
+      <div class="card-content">
+
         <!-- LEFT COLUMN: Image (or placeholder) -->
         <div class="card-image-container">
-            <img
-              [src]="isValidImage(item.url_poza) ? item.url_poza : 'no-img.svg'"
-              [ngClass]="{ 'fallback-image': !isValidImage(item.url_poza) }"
-              alt="Complaint Image"
-              class="card-image"
-              (error)="onImageError($event)"
-            />
-          </div>
+          <img
+            [src]="isValidImage(item.url_poza) ? item.url_poza : 'no-img.svg'"
+            [ngClass]="{ 'fallback-image': !isValidImage(item.url_poza) }"
+            alt="Complaint Image"
+            class="card-image"
+            (error)="onImageError($event)"
+          />
+        </div>
 
         <!-- RIGHT COLUMN: All textual details -->
         <div class="card-details-container">
-            <!-- Top row: Title (center‐left) + Status badge (top‐right) -->
-            <div class="card-header">
+          <!-- Top row: Title + Status badge -->
+          <div class="card-header">
             <div class="card-title">
-                {{ item.titlu }}
+              {{ item.titlu }}
             </div>
             <div class="card-status">
-                <mat-chip disabled
-                    [ngClass]="{
-                        'status-chip--active': item.status === 'active',
-                        'status-chip--removed': item.status === 'removed',
-                        'status-chip--warning': item.status === 'warning' || item.status === 'pending'
-                    }"
-                    selected
-                    >
-                    {{ item.status | titlecase }}
-                </mat-chip>
+              <mat-chip
+                disabled
+                [ngClass]="{
+                  'status-chip--active': item.status === 'active',
+                  'status-chip--removed': item.status === 'removed',
+                  'status-chip--warning': item.status === 'warning' || item.status === 'pending'
+                }"
+                selected
+              >
+                {{ item.status | titlecase }}
+              </mat-chip>
             </div>
-            </div>
+          </div>
 
-            <div class="card-category">
+          <div class="card-category">
             Categorie: {{ item.categorie }}
-            </div>
+          </div>
 
-            <div class="card-created-at">
+          <div class="card-created-at">
             {{ item.created_at | date: 'medium' }}
-            </div>
+          </div>
 
-            <div class="card-description">
+          <div class="card-description">
             {{ item.descriere }}
-            </div>
+          </div>
 
-            <div class="card-footer">
-                <button mat-button [ngClass]="{'disable-click-up': 'disabled'}">
-                    <mat-icon aria-hidden="false" aria-label="Upvotes">
-                        arrow_upward
-                    </mat-icon>
-                    {{ item.upvotes }}
-                </button>
-            
-                <button mat-button [ngClass]="{'disable-click-down': 'disabled'}">
-                    <mat-icon aria-hidden="false" aria-label="Downvotes">
-                        arrow_downward
-                    </mat-icon>
-                    {{ item.downvotes }}
-                </button>
+          <div *ngIf="item.comments && item.comments.length" class="comment-display">
+            <strong>Comentariu Admin:</strong>
+            <p class="existing-comment">{{ item.comments }}</p>
+          </div>
 
-            </div>
+          <div *ngIf="role === 'admin' && (!item.comments || !item.comments.length)" class="admin-comment-section">
+            <mat-form-field appearance="outline" class="comment-field">
+              <input
+                matInput
+                type="text"
+                placeholder="Adaugă un comentariu..."
+                [(ngModel)]="commentText[item.id]"
+              />
+            </mat-form-field>
+            <button
+              mat-stroked-button
+              color="primary"
+              class="submit-comment-btn"
+              (click)="submitComment(item.id)"
+            >
+              Trimite comentariu
+            </button>
+          </div>
+          <div class="card-footer">
+
+            <button mat-button style="left: -65%" (click)="solveComplaint(item.id)" *ngIf="role === 'admin' && item.status !== 'solutionat'"> Solutioneaza Sesizarea</button>
+
+            <button mat-button [ngClass]="{'disable-click-up': 'disabled'}">
+              <mat-icon aria-hidden="false" aria-label="Upvotes">
+                arrow_upward
+              </mat-icon>
+              {{ item.upvotes }}
+            </button>
+
+            <button mat-button [ngClass]="{'disable-click-down': 'disabled'}">
+              <mat-icon aria-hidden="false" aria-label="Downvotes">
+                arrow_downward
+              </mat-icon>
+              {{ item.downvotes }}
+            </button>
+          </div>
         </div>
-        </div>
+
+      </div>
     </mat-card>
-    </div>
-    <app-footer class="footer"></app-footer>
+  </div>
+
+  <app-footer class="footer"></app-footer>
 </div>
