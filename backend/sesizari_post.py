@@ -11,7 +11,7 @@ api = Namespace('sesizari_post', description='Operations related to sesizari')
 @api.route('/send_vote/upvote/<string:sesizare_id>/<string:user_id>')
 class UpvoteSesizare(Resource):
     @cross_origin()
-    def put(self, sesizare_id, user_id):
+    def post(self, sesizare_id, user_id):
         sesizare_query = db.collection('sesizari').where('id', '==', sesizare_id).stream()
         sesizare_doc = next(sesizare_query, None)
 
@@ -24,12 +24,10 @@ class UpvoteSesizare(Resource):
         if vote_doc.exists:
             existing_type = vote_doc.to_dict().get("type")
             if existing_type == "upvote":
-                # Remove upvote
                 sesizare_doc.reference.update({'upvotes': firestore.Increment(-1)})
                 vote_ref.delete()
                 return {'message': "Upvote removed."}, 200
             elif existing_type == "downvote":
-                # Switch from downvote to upvote
                 sesizare_doc.reference.update({
                     'downvotes': firestore.Increment(-1),
                     'upvotes': firestore.Increment(1)
@@ -37,7 +35,6 @@ class UpvoteSesizare(Resource):
                 vote_ref.set({'type': 'upvote'})
                 return {'message': "Switched from downvote to upvote."}, 200
         else:
-            # New upvote
             sesizare_doc.reference.update({'upvotes': firestore.Increment(1)})
             vote_ref.set({'type': 'upvote'})
             return {'message': "Upvote registered."}, 200
@@ -46,7 +43,7 @@ class UpvoteSesizare(Resource):
 @api.route('/send_vote/downvote/<string:sesizare_id>/<string:user_id>')
 class DownvoteSesizare(Resource):
     @cross_origin()
-    def put(self, sesizare_id, user_id):
+    def post(self, sesizare_id, user_id):
         sesizare_query = db.collection('sesizari').where('id', '==', sesizare_id).stream()
         sesizare_doc = next(sesizare_query, None)
 
@@ -59,12 +56,10 @@ class DownvoteSesizare(Resource):
         if vote_doc.exists:
             existing_type = vote_doc.to_dict().get("type")
             if existing_type == "downvote":
-                # Remove downvote
                 sesizare_doc.reference.update({'downvotes': firestore.Increment(-1)})
                 vote_ref.delete()
                 return {'message': "Downvote removed."}, 200
             elif existing_type == "upvote":
-                # Switch from upvote to downvote
                 sesizare_doc.reference.update({
                     'upvotes': firestore.Increment(-1),
                     'downvotes': firestore.Increment(1)
@@ -72,7 +67,6 @@ class DownvoteSesizare(Resource):
                 vote_ref.set({'type': 'downvote'})
                 return {'message': "Switched from upvote to downvote."}, 200
         else:
-            # New downvote
             sesizare_doc.reference.update({'downvotes': firestore.Increment(1)})
             vote_ref.set({'type': 'downvote'})
             return {'message': "Downvote registered."}, 200
