@@ -84,4 +84,15 @@ downloadReport(): void {
         }
       });
   }
+
+  isValidImage(url: any): boolean {
+    return !!url && url !== 'string';
+  }
+  
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'no-img.svg';
+    target.classList.add('fallback-image');
+  }
+  
 }

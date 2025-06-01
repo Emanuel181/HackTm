@@ -12,18 +12,13 @@
         <!-- LEFT COLUMN: Image (or placeholder) -->
         <div class="card-image-container">
             <img
-            *ngIf="item.url_poza && item.url_poza.length; else noImage"
-            [src]="item.url_poza"
-            alt="Complaint Image"
-            class="card-image"
+              [src]="isValidImage(item.url_poza) ? item.url_poza : 'no-img.svg'"
+              [ngClass]="{ 'fallback-image': !isValidImage(item.url_poza) }"
+              alt="Complaint Image"
+              class="card-image"
+              (error)="onImageError($event)"
             />
-            <ng-template #noImage>
-            <div class="no-image-placeholder">
-                <mat-icon>image_not_supported</mat-icon>
-                <span>No Image</span>
-            </div>
-            </ng-template>
-        </div>
+          </div>
 
         <!-- RIGHT COLUMN: All textual details -->
         <div class="card-details-container">
