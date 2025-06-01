@@ -114,7 +114,7 @@ export class CreationDialogComponent implements OnInit {
     this.http.post(`${environment.baseApiUrl}/send_vote/upvote/${sesizare_id}/${user_id}`, null).subscribe({
       next: (res) => {
         this.snackBar.open('Upvote successful!', 'OK', { duration: 3000 });
-        this.ngOnInit();
+        this.refreshVotes(sesizare_id);
       },
       error: (err) => { 
         console.error('Error upvoting:', err);
@@ -129,12 +129,27 @@ export class CreationDialogComponent implements OnInit {
     this.http.post(`${environment.baseApiUrl}/send_vote/downvote/${sesizare_id}/${user_id}`, null).subscribe({
       next: (res) => {
         this.snackBar.open('Downvote successful!', 'OK', { duration: 3000 });
+        this.refreshVotes(sesizare_id);
       },
       error: (err) => { 
         console.error('Error downvoting:', err);
         this.snackBar.open('Error downvoting. Please try again later.', 'OK', { duration: 5000 });
       }
     });
+  }
+
+  private refreshVotes(sesizareId: string): void {
+    this.http
+      .get<any>(`${environment.baseApiUrl}get_sesizari/sesizari_id/${sesizareId}`)
+      .subscribe({
+        next: (updated) => {
+          this.data.item.upvotes = updated.upvotes;
+          this.data.item.downvotes = updated.downvotes;
+        },
+        error: (err) => {
+          console.error('Error refreshing vote counts:', err);
+        }
+      });
   }
 
   private fetchCategories(): void {
