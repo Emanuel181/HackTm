@@ -336,6 +336,8 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       trackUserLocation: true,
       showUserHeading: true
     }));
+    this.map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+
 
     navigator.geolocation.getCurrentPosition((position) => {
       const { latitude, longitude } = position.coords;

@@ -362,6 +362,8 @@ export class MapHeat3DComponent implements AfterViewInit, OnDestroy {
       bearing: 45,                   // rotate view to 45° (instead of -17.6)
       antialias: true
     });
+    this.map.addControl(new mapboxgl.FullscreenControl(), 'bottom');
+
 
     // Whenever the style reloads, re‐apply our chosen lightPreset
     this.map.on('style.load', () => {

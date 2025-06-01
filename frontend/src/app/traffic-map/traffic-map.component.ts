@@ -48,7 +48,8 @@ export class TrafficMapComponent implements AfterViewInit, OnDestroy {
 
 
 
-    this.map.addControl(new mapboxgl.NavigationControl());
+    this.map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    this.map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
 
     this.map.on('load', () => {
       this.map.addLayer({
