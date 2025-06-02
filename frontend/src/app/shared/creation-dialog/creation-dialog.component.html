@@ -45,12 +45,12 @@
 
     <div class="view-footer">
       <div class="vote-counts">
-        <button mat-button (click)="onUpvote()" [disabled]="!canVote" matTooltip="Trebuie să fii la maxim 50 m pentru a vota">
+        <button mat-button (click)="onUpvote()" matTooltip="Trebuie să fii la maxim 50 m pentru a vota">
           <mat-icon aria-hidden="false" aria-label="Upvotes">arrow_upward</mat-icon>
           {{ data.item.upvotes }}
         </button>
         &nbsp;&nbsp;
-        <button mat-button (click)="onDownvote()" [disabled]="!canVote" matTooltip="Trebuie să fii la maxim 50 m pentru a vota">
+        <button mat-button (click)="onDownvote()" matTooltip="Trebuie să fii la maxim 50 m pentru a vota">
           <mat-icon aria-hidden="false" aria-label="Downvotes">arrow_downward</mat-icon>
           {{ data.item.downvotes }}
         </button>

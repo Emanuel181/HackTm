@@ -108,7 +108,7 @@ export class CreationDialogComponent implements OnInit {
               sesizareLat, sesizareLon
             );
 
-            if (distanceMeters <= 100 || distanceMeters == 693.7282306050765 || distanceMeters == 656.3285151537567) {
+            if (distanceMeters <= 100) {
               this.canVote = true;
             } else {
               this.canVote = false;
@@ -142,7 +142,6 @@ export class CreationDialogComponent implements OnInit {
   onUpvote(){
     const sesizare_id = this.data.item.id;
     const user_id =  this.data.item.user_id;
-    if (!this.canVote) { console.log('merge'); return; }
     this.http.post(`${environment.baseApiUrl}/send_vote/upvote/${sesizare_id}/${user_id}`, null).subscribe({
       next: (res) => {
         this.snackBar.open('Upvote successful!', 'OK', { duration: 3000 });
@@ -158,7 +157,6 @@ export class CreationDialogComponent implements OnInit {
   onDownvote(){
     const sesizare_id = this.data.item.id;
     const user_id =  this.data.item.user_id;
-    if (!this.canVote) { console.log('merge'); return; }
     this.http.post(`${environment.baseApiUrl}/send_vote/downvote/${sesizare_id}/${user_id}`, null).subscribe({
       next: (res) => {
         this.snackBar.open('Downvote successful!', 'OK', { duration: 3000 });
